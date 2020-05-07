@@ -199,9 +199,16 @@ Plugin::AMD::Encoder::Encoder(Codec codec, std::shared_ptr<API::IAPI> videoAPI, 
 	res =
 		m_AMFConverter->SetProperty(AMF_VIDEO_CONVERTER_COLOR_PROFILE, Utility::ColorSpaceToAMFConverter(m_ColorSpace));
 	if (res != AMF_OK) {
-		QUICK_FORMAT_MESSAGE(errMsg, "<Id: %llu> Unable to set convertor color profile, error %ls (code %d)",
+		QUICK_FORMAT_MESSAGE(errMsg, "<Id: %llu> Unable to set converter color profile, error %ls (code %d)",
 							 m_UniqueId, m_AMF->GetTrace()->GetResultText(res), res);
 		throw std::exception(errMsg.c_str());
+	}
+	res = m_AMFConverter->SetProperty(AMF_VIDEO_CONVERTER_TRANSFER_CHARACTERISTIC,
+									  Utility::ColorSpaceToTransferCharacteristic(m_ColorSpace));
+	if (res != AMF_OK) {
+		QUICK_FORMAT_MESSAGE(errMsg, "<Id: %llu> Unable to set converter transfer characteristic, error %ls (code %d)",
+							 m_UniqueId, m_AMF->GetTrace()->GetResultText(res), res);
+		PLOG_WARNING("%s", errMsg.c_str());
 	}
 
 	// Create Encoder
@@ -328,18 +335,16 @@ void Plugin::AMD::Encoder::UpdateFrameRateValues()
 
 void Plugin::AMD::Encoder::SetVBVBufferStrictness(double_t v)
 {
-	AMFTRACECALL;
-
 	auto     bitrateCaps  = CapsVBVBufferSize();
 	uint64_t looseBitrate = bitrateCaps.second, targetBitrate = 0, strictBitrate = bitrateCaps.first;
 
 	Usage usage = GetUsage();
 	if (usage == Usage::UltraLowLatency) {
-		targetBitrate = clamp(GetTargetBitrate(), bitrateCaps.first, bitrateCaps.second);
+		targetBitrate = amf_clamp(GetTargetBitrate(), bitrateCaps.first, bitrateCaps.second);
 	} else {
 		switch (this->GetRateControlMethod()) {
 		case RateControlMethod::ConstantBitrate:
-			targetBitrate = clamp(GetTargetBitrate(), bitrateCaps.first, bitrateCaps.second);
+			targetBitrate = amf_clamp(GetTargetBitrate(), bitrateCaps.first, bitrateCaps.second);
 			break;
 		case RateControlMethod::LatencyConstrainedVariableBitrate:
 		case RateControlMethod::PeakConstrainedVariableBitrate:
@@ -350,15 +355,15 @@ void Plugin::AMD::Encoder::SetVBVBufferStrictness(double_t v)
 			break;
 		}
 	}
-	strictBitrate = clamp(
+	strictBitrate = amf_clamp(
 		static_cast<uint64_t>(round(targetBitrate * ((double_t)m_FrameRate.second / (double_t)m_FrameRate.first))),
 		bitrateCaps.first, targetBitrate);
 
 	// Three-Point Linear Lerp
 	// 0% = looseBitrate, 50% = targetBitrate, 100% = strictBitrate
-	v                 = clamp(v, 0.0, 1.0);
-	double_t aFadeVal = clamp(v * 2.0, 0.0, 1.0);       // 0 - 0.5
-	double_t bFadeVal = clamp(v * 2.0 - 1.0, 0.0, 0.0); // 0.5 - 1.0
+	v                 = amf_clamp(v, 0.0, 1.0);
+	double_t aFadeVal = amf_clamp(v * 2.0, 0.0, 1.0);       // 0 - 0.5
+	double_t bFadeVal = amf_clamp(v * 2.0 - 1.0, 0.0, 1.0); // 0.5 - 1.0
 
 	double_t aFade = (looseBitrate * (1.0 - aFadeVal)) + (targetBitrate * aFadeVal);
 	double_t bFade = (aFade * (1.0 - bFadeVal)) + (strictBitrate * bFadeVal);
@@ -419,13 +424,11 @@ bool Plugin::AMD::Encoder::GetFrameSkippingBehaviour()
 
 void Plugin::AMD::Encoder::Start()
 {
-	AMFTRACECALL;
-
 	AMF_RESULT res;
 
 	res = m_AMFConverter->Init(Utility::ColorFormatToAMF(m_ColorFormat), m_Resolution.first, m_Resolution.second);
 	if (res != AMF_OK) {
-		QUICK_FORMAT_MESSAGE(errMsg, "<Id: %llu> Unable to initalize converter, error %ls (code %d)", m_UniqueId,
+		QUICK_FORMAT_MESSAGE(errMsg, "<Id: %llu> Unable to initialize converter, error %ls (code %d)", m_UniqueId,
 							 m_AMF->GetTrace()->GetResultText(res), res);
 		throw std::exception(errMsg.c_str());
 	}
@@ -456,8 +459,6 @@ void Plugin::AMD::Encoder::Start()
 
 void Plugin::AMD::Encoder::Restart()
 {
-	AMFTRACECALL;
-
 	AMF_RESULT res = m_AMFEncoder->ReInit(m_Resolution.first, m_Resolution.second);
 	if (res != AMF_OK) {
 		QUICK_FORMAT_MESSAGE(errMsg, "<Id: %llu> Could not re-initialize encoder, error %ls (code %d)", m_UniqueId,
@@ -468,8 +469,6 @@ void Plugin::AMD::Encoder::Restart()
 
 void Plugin::AMD::Encoder::Stop()
 {
-	AMFTRACECALL;
-
 	if (!m_Started)
 		throw std::logic_error("Can't stop an encoder that isn't running!");
 
@@ -505,15 +504,11 @@ void Plugin::AMD::Encoder::Stop()
 
 bool Plugin::AMD::Encoder::IsStarted()
 {
-	AMFTRACECALL;
-
 	return m_Started;
 }
 
 bool Plugin::AMD::Encoder::Encode(struct encoder_frame* frame, struct encoder_packet* packet, bool* received_packet)
 {
-	AMFTRACECALL;
-
 	if (!m_Started)
 		return false;
 
@@ -538,10 +533,8 @@ bool Plugin::AMD::Encoder::Encode(struct encoder_frame* frame, struct encoder_pa
 
 void Plugin::AMD::Encoder::GetVideoInfo(struct video_scale_info* info)
 {
-	AMFTRACECALL;
-
 	if (!m_AMFContext || !m_AMFEncoder)
-		throw std::exception("<" __FUNCTION_NAME__ "> Called while not initialized.");
+		throw std::exception("Called while not initialized.");
 
 	switch (m_ColorFormat) {
 	// 4:2:0 Formats
@@ -577,10 +570,8 @@ void Plugin::AMD::Encoder::GetVideoInfo(struct video_scale_info* info)
 
 bool Plugin::AMD::Encoder::GetExtraData(uint8_t** extra_data, size_t* size)
 {
-	AMFTRACECALL;
-
 	if (!m_AMFContext || !m_AMFEncoder)
-		throw std::exception("<" __FUNCTION_NAME__ "> Called while not initialized.");
+		throw std::exception("Called while not initialized.");
 
 	amf::AMFVariant var;
 	AMF_RESULT      res = GetExtraDataInternal(&var);
@@ -599,8 +590,6 @@ bool Plugin::AMD::Encoder::GetExtraData(uint8_t** extra_data, size_t* size)
 
 bool Plugin::AMD::Encoder::EncodeAllocate(OUT amf::AMFSurfacePtr& surface)
 {
-	AMFTRACECALL;
-
 	AMF_RESULT res;
 	auto       clk_start = std::chrono::high_resolution_clock::now();
 
@@ -633,8 +622,6 @@ bool Plugin::AMD::Encoder::EncodeAllocate(OUT amf::AMFSurfacePtr& surface)
 
 bool Plugin::AMD::Encoder::EncodeStore(OUT amf::AMFSurfacePtr& surface, IN struct encoder_frame* frame)
 {
-	AMFTRACECALL;
-
 	AMF_RESULT                  res;
 	amf::AMFComputeSyncPointPtr pSyncPoint;
 	auto                        clk_start = std::chrono::high_resolution_clock::now();
@@ -729,8 +716,6 @@ bool Plugin::AMD::Encoder::EncodeStore(OUT amf::AMFSurfacePtr& surface, IN struc
 
 bool Plugin::AMD::Encoder::EncodeConvert(IN amf::AMFSurfacePtr& surface, OUT amf::AMFDataPtr& data)
 {
-	AMFTRACECALL;
-
 	AMF_RESULT res;
 	auto       clk_start = std::chrono::high_resolution_clock::now();
 
@@ -780,8 +765,6 @@ bool Plugin::AMD::Encoder::EncodeConvert(IN amf::AMFSurfacePtr& surface, OUT amf
 
 bool Plugin::AMD::Encoder::EncodeMain(IN amf::AMFDataPtr& data, OUT amf::AMFDataPtr& packet)
 {
-	AMFTRACECALL;
-
 	bool frameSubmitted = false, packetRetrieved = false;
 
 	bool keepLooping = true;
@@ -915,8 +898,6 @@ bool Plugin::AMD::Encoder::EncodeMain(IN amf::AMFDataPtr& data, OUT amf::AMFData
 bool Plugin::AMD::Encoder::EncodeLoad(IN amf::AMFDataPtr& data, OUT struct encoder_packet* packet,
 									  OUT bool* received_packet)
 {
-	AMFTRACECALL;
-
 	if (data == nullptr)
 		return true;
 
@@ -933,7 +914,7 @@ bool Plugin::AMD::Encoder::EncodeLoad(IN amf::AMFDataPtr& data, OUT struct encod
 	PacketPriorityAndKeyframe(data, packet);
 	packet->size = pBuffer->GetSize();
 	if (m_PacketDataBuffer.size() < packet->size) {
-		size_t newBufferSize = (size_t)exp2(ceil(log2(packet->size)));
+		size_t newBufferSize = (size_t)exp2(ceil(log2((double)packet->size)));
 		//AMF_LOG_DEBUG("Packet Buffer was resized to %d byte from %d byte.", newBufferSize, m_PacketDataBuffer.size());
 		m_PacketDataBuffer.resize(newBufferSize);
 	}

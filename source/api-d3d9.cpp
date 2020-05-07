@@ -18,17 +18,20 @@
  */
 
 #include "api-d3d9.hpp"
+#include <cinttypes>
 #include <list>
 #include <mutex>
-#include <cinttypes>
 
 using namespace Plugin::API;
 
 Plugin::API::Direct3D9::Direct3D9()
 {
 	HRESULT hr = Direct3DCreate9Ex(D3D_SDK_VERSION, &m_Direct3D9Ex);
-	if (FAILED(hr))
-		throw std::exception("<" __FUNCTION_NAME__ "> Failed to create D3D9Ex, error code %X.", hr);
+	if (FAILED(hr)) {
+		std::vector<char> buf(1024);
+		snprintf(buf.data(), buf.size(), "<%s> Failed to create D3D9Ex, error code %X.", __FUNCTION_NAME__, hr);
+		throw std::exception(buf.data());
+	}
 
 	std::list<LUID>        enumeratedLUIDs;
 	D3DADAPTER_IDENTIFIER9 adapterIdentifier;
@@ -97,7 +100,8 @@ std::shared_ptr<Instance> Plugin::API::Direct3D9::CreateInstance(Adapter adapter
 	return inst2;
 }
 
-Plugin::API::Direct3D9Instance::Direct3D9Instance(Direct3D9* api, Adapter adapter) : m_API(api), m_Adapter(adapter)
+Plugin::API::Direct3D9Instance::Direct3D9Instance(Direct3D9* api, Adapter adapter)
+	: m_API(api), m_Adapter(adapter), m_Device(nullptr)
 {
 	size_t                 adapterNum = (size_t)-1;
 	D3DADAPTER_IDENTIFIER9 adapterIdentifier;
@@ -135,8 +139,8 @@ Plugin::API::Direct3D9Instance::Direct3D9Instance(Direct3D9* api, Adapter adapte
 	HRESULT hr = api->m_Direct3D9Ex->GetDeviceCaps((UINT)adapterNum, D3DDEVTYPE_HAL, &ddCaps);
 	if (FAILED(hr)) {
 		std::vector<char> buf(1024);
-		snprintf(buf.data(), buf.size(),
-				 "<" __FUNCTION_NAME__ "> Unable to query capabilities for D3D9 adapter, error code %X.", hr);
+		snprintf(buf.data(), buf.size(), "<%s> Unable to query capabilities for D3D9 adapter, error code %X.",
+				 __FUNCTION_NAME__, hr);
 		throw std::exception(buf.data());
 	}
 
@@ -152,7 +156,7 @@ Plugin::API::Direct3D9Instance::Direct3D9Instance(Direct3D9* api, Adapter adapte
 											&presentParameters, NULL, &m_Device);
 	if (FAILED(hr)) {
 		std::vector<char> buf(1024);
-		snprintf(buf.data(), buf.size(), "<" __FUNCTION_NAME__ "> Unable to create D3D9 device, error code %X.", hr);
+		snprintf(buf.data(), buf.size(), "<%s> Unable to create D3D9 device, error code %X.", __FUNCTION_NAME__, hr);
 		throw std::exception(buf.data());
 	}
 }
@@ -178,7 +182,7 @@ Plugin::API::Adapter Plugin::API::Direct3D9Instance::GetAdapter()
 	HRESULT hr = instance->device->GetCreationParameters(&par);
 	if (FAILED(hr)) {
 		std::vector<char> buf(1024);
-		snprintf(buf.data(), "<" __FUNCTION_NAME__ "> Unable to get adapter from D3D9 device, error code %X.", hr);
+		snprintf(buf.data(), "<%s> Unable to get adapter from D3D9 device, error code %X.", __FUNCTION_NAME__, hr);
 		throw std::exception(buf.data());
 	}
 

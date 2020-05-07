@@ -27,48 +27,40 @@
 #define PREFIX "[H265/HEVC]"
 
 using namespace Plugin::AMD;
+static obs_encoder_info _oei = {};
 
 void Plugin::Interface::H265Interface::encoder_register()
 {
+	_oei.type  = OBS_ENCODER_VIDEO;
+	_oei.id    = "amd_amf_h265";
+	_oei.codec = "hevc";
+
+	_oei.get_name       = get_name;
+	_oei.get_defaults   = get_defaults;
+	_oei.get_properties = get_properties;
+	_oei.create         = create;
+	_oei.destroy        = destroy;
+	_oei.encode         = encode;
+	_oei.update         = update;
+	_oei.get_video_info = get_video_info;
+	_oei.get_extra_data = get_extra_data;
+
 	// Test if we actually have AVC support.
 	if (!AMD::CapabilityManager::Instance()->IsCodecSupported(Codec::HEVC)) {
 		PLOG_WARNING(PREFIX " Not supported by any GPU, disabling...");
 		return;
 	}
 
-	// Create structure
-	static std::unique_ptr<obs_encoder_info> encoder_info = std::make_unique<obs_encoder_info>();
-	std::memset(encoder_info.get(), 0, sizeof(obs_encoder_info));
-
-	// Initialize Structure
-	encoder_info->type               = obs_encoder_type::OBS_ENCODER_VIDEO;
-	static const char* encoder_name  = "amd_amf_h265";
-	encoder_info->id                 = encoder_name;
-	static const char* encoder_codec = "hevc";
-	encoder_info->codec              = encoder_codec;
-
-	// Functions
-	encoder_info->get_name       = &get_name;
-	encoder_info->get_defaults   = &get_defaults;
-	encoder_info->get_properties = &get_properties;
-	encoder_info->create         = &create;
-	encoder_info->destroy        = &destroy;
-	encoder_info->encode         = &encode;
-	encoder_info->update         = &update;
-	encoder_info->get_video_info = &get_video_info;
-	encoder_info->get_extra_data = &get_extra_data;
-
-	obs_register_encoder(encoder_info.get());
+	obs_register_encoder(&_oei);
 	PLOG_DEBUG(PREFIX " Registered.");
 }
 
-const char* Plugin::Interface::H265Interface::get_name(void*)
+const char* Plugin::Interface::H265Interface::get_name(void*) noexcept
 {
-	static const char* name = "H265/HEVC Encoder (" PLUGIN_NAME ")";
-	return name;
+	return "H265/HEVC Encoder (" PLUGIN_NAME ")";
 }
 
-void Plugin::Interface::H265Interface::get_defaults(obs_data_t* data)
+void Plugin::Interface::H265Interface::get_defaults(obs_data_t* data) noexcept
 {
 #pragma region OBS - Enforce Streaming Service Restrictions
 	obs_data_set_default_int(data, "bitrate", 0);
@@ -106,6 +98,7 @@ void Plugin::Interface::H265Interface::get_defaults(obs_data_t* data)
 	obs_data_set_default_int(data, P_FRAMESKIPPING, 0);
 	obs_data_set_default_int(data, P_VBAQ, 0);
 	obs_data_set_default_int(data, P_ENFORCEHRD, 1);
+	obs_data_set_default_int(data, P_HIGHMOTIONQUALITYBOOST, -1);
 
 	// VBV Buffer
 	obs_data_set_int(data, ("last" P_VBVBUFFER), -1);
@@ -149,35 +142,8 @@ void Plugin::Interface::H265Interface::get_defaults(obs_data_t* data)
 	obs_data_set_default_int(data, P_VERSION, PLUGIN_VERSION_FULL);
 }
 
-static void fill_api_list(obs_property_t* p)
-{
-	obs_property_list_clear(p);
-	auto cm = CapabilityManager::Instance();
-
-	for (auto api : Plugin::API::EnumerateAPIs()) {
-		if (cm->IsCodecSupportedByAPI(Codec::HEVC, api->GetType()))
-			obs_property_list_add_string(p, api->GetName().c_str(), api->GetName().c_str());
-	}
-}
-
-static void fill_device_list(obs_property_t* p, const char* apiname)
-{
-	obs_property_list_clear(p);
-
-	auto cm  = CapabilityManager::Instance();
-	auto api = Plugin::API::GetAPI(std::string(apiname));
-	for (auto adapter : api->EnumerateAdapters()) {
-		union {
-			int32_t id[2];
-			int64_t v;
-		} adapterid = {adapter.idLow, adapter.idHigh};
-		if (cm->IsCodecSupportedByAPIAdapter(Codec::HEVC, api->GetType(), adapter))
-			obs_property_list_add_int(p, adapter.Name.c_str(), adapterid.v);
-	}
-}
-
-obs_properties_t* Plugin::Interface::H265Interface::get_properties(void* data)
-{
+obs_properties_t* Plugin::Interface::H265Interface::get_properties(void* data) noexcept
+try {
 	obs_properties* props = obs_properties_create();
 	obs_property_t* p;
 
@@ -319,7 +285,16 @@ obs_properties_t* Plugin::Interface::H265Interface::get_properties(void* data)
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_ENFORCEHRD)));
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_DISABLED), 0);
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_ENABLED), 1);
-#pragma endregion Enforce Hyptothetical Reference Decoder Restrictions
+#pragma endregion Enforce Hypothetical Reference Decoder Restrictions
+
+	{ // High Motion Quality Boost
+		p = obs_properties_add_list(props, P_HIGHMOTIONQUALITYBOOST, P_TRANSLATE(P_HIGHMOTIONQUALITYBOOST),
+									OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
+		obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_HIGHMOTIONQUALITYBOOST)));
+		obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_DEFAULT), -1);
+		obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_DISABLED), 0);
+		obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_ENABLED), 1);
+	}
 
 	// VBV Buffer
 #pragma region VBV Buffer Mode
@@ -412,7 +387,7 @@ obs_properties_t* Plugin::Interface::H265Interface::get_properties(void* data)
 								OBS_COMBO_FORMAT_STRING);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_VIDEO_API)));
 	obs_property_set_modified_callback(p, properties_modified);
-	fill_api_list(p);
+	Utility::fill_api_list(p, Codec::HEVC);
 #pragma endregion Video APIs
 
 #pragma region Video Adapters
@@ -465,6 +440,12 @@ obs_properties_t* Plugin::Interface::H265Interface::get_properties(void* data)
 	obs_properties_set_param(props, data, nullptr);
 
 	return props;
+} catch (const std::exception& ex) {
+	PLOG_ERROR("Unexpected exception in %s: %s", __FUNCTION_NAME__, ex.what());
+	return nullptr;
+} catch (...) {
+	PLOG_ERROR("Unexpected unknown exception in %s.", __FUNCTION_NAME__);
+	return nullptr;
 }
 
 static void obs_data_transfer_settings(obs_data_t* data)
@@ -485,8 +466,9 @@ static void obs_data_transfer_settings(obs_data_t* data)
 	}
 }
 
-bool Plugin::Interface::H265Interface::properties_modified(obs_properties_t* props, obs_property_t*, obs_data_t* data)
-{
+bool Plugin::Interface::H265Interface::properties_modified(obs_properties_t* props, obs_property_t*,
+														   obs_data_t*       data) noexcept
+try {
 	bool            result = false;
 	obs_property_t* p;
 
@@ -507,7 +489,7 @@ bool Plugin::Interface::H265Interface::properties_modified(obs_properties_t* pro
 	/// If a different API was selected, rebuild the device list.
 	if (strcmp(videoAPI_last, videoAPI_cur) != 0) {
 		obs_data_set_string(data, ("last" P_VIDEO_API), videoAPI_cur);
-		fill_device_list(obs_properties_get(props, P_VIDEO_ADAPTER), videoAPI_cur);
+		Utility::fill_device_list(obs_properties_get(props, P_VIDEO_ADAPTER), videoAPI_cur, Codec::HEVC);
 		result = true;
 
 		// Reset Video Adapter to first in list.
@@ -581,7 +563,7 @@ bool Plugin::Interface::H265Interface::properties_modified(obs_properties_t* pro
 			TEMP_LIMIT_SLIDER_BITRATE(CapsPeakBitrate, P_BITRATE_PEAK);
 			TEMP_LIMIT_SLIDER_BITRATE(CapsVBVBufferSize, P_VBVBUFFER_SIZE);
 		} catch (const std::exception& e) {
-			PLOG_ERROR("Exception occured while updating capabilities: %s", e.what());
+			PLOG_ERROR("Exception occurred while updating capabilities: %s", e.what());
 		}
 	}
 #pragma endregion Video API& Adapter
@@ -621,6 +603,7 @@ bool Plugin::Interface::H265Interface::properties_modified(obs_properties_t* pro
 		std::make_pair(P_FRAMESKIPPING_BEHAVIOUR, ViewMode::Master),
 		//std::make_pair(P_VBAQ, ViewMode::Expert),
 		std::make_pair(P_ENFORCEHRD, ViewMode::Expert),
+		std::make_pair(P_HIGHMOTIONQUALITYBOOST, ViewMode::Advanced),
 		// ----------- VBV Buffer
 		std::make_pair(P_VBVBUFFER, ViewMode::Advanced),
 		//std::make_pair(P_VBVBUFFER_STRICTNESS, ViewMode::Advanced),
@@ -790,6 +773,7 @@ bool Plugin::Interface::H265Interface::properties_modified(obs_properties_t* pro
 			P_VBVBUFFER_INITIALFULLNESS,
 			P_PREPASSMODE,
 			P_VBAQ,
+			P_HIGHMOTIONQUALITYBOOST,
 
 			/// Picture Control
 			P_GOP_SIZE,
@@ -816,9 +800,15 @@ bool Plugin::Interface::H265Interface::properties_modified(obs_properties_t* pro
 	}
 
 	return true;
+} catch (const std::exception& ex) {
+	PLOG_ERROR("Unexpected exception in %s: %s", __FUNCTION_NAME__, ex.what());
+	return false;
+} catch (...) {
+	PLOG_ERROR("Unexpected unknown exception in %s.", __FUNCTION_NAME__);
+	return false;
 }
 
-void* Plugin::Interface::H265Interface::create(obs_data_t* data, obs_encoder_t* encoder)
+void* Plugin::Interface::H265Interface::create(obs_data_t* data, obs_encoder_t* encoder) noexcept
 {
 	try {
 		return new H265Interface(data, encoder);
@@ -830,7 +820,7 @@ void* Plugin::Interface::H265Interface::create(obs_data_t* data, obs_encoder_t* 
 
 Plugin::Interface::H265Interface::H265Interface(obs_data_t* data, obs_encoder_t* encoder)
 {
-	PLOG_DEBUG("<" __FUNCTION_NAME__ "> Initializing...");
+	PLOG_DEBUG("<%s> Initializing...", __FUNCTION_NAME__);
 
 	m_Encoder = encoder;
 
@@ -876,6 +866,9 @@ Plugin::Interface::H265Interface::H265Interface(obs_data_t* data, obs_encoder_t*
 		break;
 	case VIDEO_CS_709:
 		colorSpace = ColorSpace::BT709;
+		break;
+	case VIDEO_CS_SRGB:
+		colorSpace = ColorSpace::SRGB;
 		break;
 	}
 
@@ -931,9 +924,16 @@ Plugin::Interface::H265Interface::H265Interface(obs_data_t* data, obs_encoder_t*
 		m_VideoEncoder->SetPrePassMode(PrePassMode::Disabled);
 		m_VideoEncoder->SetVarianceBasedAdaptiveQuantizationEnabled(false);
 	}
+	try {
+		int64_t v = obs_data_get_int(data, P_HIGHMOTIONQUALITYBOOST);
+		if (v >= 0) {
+			m_VideoEncoder->SetHighMotionQualityBoost(!!v);
+		}
+	} catch (...) {
+	}
 
 	// Picture Control
-	uint32_t      gopSize = static_cast<uint32_t>(clamp(floor(obsFPSnum / (double_t)obsFPSden), 1, 1000));
+	uint32_t      gopSize = static_cast<uint32_t>(amf_clamp(floor(obsFPSnum / (double_t)obsFPSden), 1, 1000));
 	H265::GOPType gopType = static_cast<H265::GOPType>(obs_data_get_int(data, P_GOP_TYPE));
 	m_VideoEncoder->SetGOPType(gopType);
 	if (static_cast<ViewMode>(obs_data_get_int(data, P_VIEW)) >= ViewMode::Expert) {
@@ -958,7 +958,7 @@ Plugin::Interface::H265Interface::H265Interface(obs_data_t* data, obs_encoder_t*
 			double_t keyinterv = obs_data_get_double(data, P_INTERVAL_KEYFRAME);
 			idrperiod          = static_cast<uint32_t>(ceil((keyinterv * framerate) / gopSize));
 		}
-		m_VideoEncoder->SetIDRPeriod(clamp(idrperiod, 1, 1000));
+		m_VideoEncoder->SetIDRPeriod(amf_clamp(idrperiod, 1, 1000));
 	}
 	m_VideoEncoder->SetDeblockingFilterEnabled(!!obs_data_get_int(data, P_DEBLOCKINGFILTER));
 	m_VideoEncoder->SetMotionEstimationHalfPixelEnabled(!!(obs_data_get_int(data, P_MOTIONESTIMATION) & 1));
@@ -1023,29 +1023,39 @@ Plugin::Interface::H265Interface::H265Interface(obs_data_t* data, obs_encoder_t*
 	// Dynamic Properties (Can be changed during Encoding)
 	this->update(data);
 
-	PLOG_DEBUG("<" __FUNCTION_NAME__ "> Complete.");
+	PLOG_DEBUG("<%s> Complete.", __FUNCTION_NAME__);
 }
 
-void Plugin::Interface::H265Interface::destroy(void* ptr)
-{
+void Plugin::Interface::H265Interface::destroy(void* ptr) noexcept
+try {
 	if (ptr)
 		delete static_cast<H265Interface*>(ptr);
+} catch (const std::exception& ex) {
+	PLOG_ERROR("Unexpected exception in %s: %s", __FUNCTION_NAME__, ex.what());
+} catch (...) {
+	PLOG_ERROR("Unexpected unknown exception in %s.", __FUNCTION_NAME__);
 }
 
 Plugin::Interface::H265Interface::~H265Interface()
 {
-	PLOG_DEBUG("<" __FUNCTION_NAME__ "> Finalizing...");
+	PLOG_DEBUG("<%s> Finalizing...", __FUNCTION_NAME__);
 	if (m_VideoEncoder) {
 		m_VideoEncoder->Stop();
 		m_VideoEncoder = nullptr;
 	}
-	PLOG_DEBUG("<" __FUNCTION_NAME__ "> Complete.");
+	PLOG_DEBUG("<%s> Complete.", __FUNCTION_NAME__);
 }
 
-bool Plugin::Interface::H265Interface::update(void* ptr, obs_data_t* settings)
-{
+bool Plugin::Interface::H265Interface::update(void* ptr, obs_data_t* settings) noexcept
+try {
 	if (ptr)
 		return static_cast<H265Interface*>(ptr)->update(settings);
+	return false;
+} catch (const std::exception& ex) {
+	PLOG_ERROR("Unexpected exception in %s: %s", __FUNCTION_NAME__, ex.what());
+	return false;
+} catch (...) {
+	PLOG_ERROR("Unexpected unknown exception in %s.", __FUNCTION_NAME__);
 	return false;
 }
 
@@ -1121,10 +1131,16 @@ bool Plugin::Interface::H265Interface::update(obs_data_t* data)
 }
 
 bool Plugin::Interface::H265Interface::encode(void* ptr, struct encoder_frame* frame, struct encoder_packet* packet,
-											  bool* received_packet)
-{
+											  bool* received_packet) noexcept
+try {
 	if (ptr)
 		return static_cast<H265Interface*>(ptr)->encode(frame, packet, received_packet);
+	return false;
+} catch (const std::exception& ex) {
+	PLOG_ERROR("Unexpected exception in %s: %s", __FUNCTION_NAME__, ex.what());
+	return false;
+} catch (...) {
+	PLOG_ERROR("Unexpected unknown exception in %s.", __FUNCTION_NAME__);
 	return false;
 }
 
@@ -1144,10 +1160,14 @@ bool Plugin::Interface::H265Interface::encode(struct encoder_frame* frame, struc
 	return false;
 }
 
-void Plugin::Interface::H265Interface::get_video_info(void* ptr, struct video_scale_info* info)
-{
+void Plugin::Interface::H265Interface::get_video_info(void* ptr, struct video_scale_info* info) noexcept
+try {
 	if (ptr)
 		static_cast<H265Interface*>(ptr)->get_video_info(info);
+} catch (const std::exception& ex) {
+	PLOG_ERROR("Unexpected exception in %s: %s", __FUNCTION_NAME__, ex.what());
+} catch (...) {
+	PLOG_ERROR("Unexpected unknown exception in %s.", __FUNCTION_NAME__);
 }
 
 void Plugin::Interface::H265Interface::get_video_info(struct video_scale_info* info)
@@ -1155,10 +1175,16 @@ void Plugin::Interface::H265Interface::get_video_info(struct video_scale_info* i
 	m_VideoEncoder->GetVideoInfo(info);
 }
 
-bool Plugin::Interface::H265Interface::get_extra_data(void* ptr, uint8_t** extra_data, size_t* size)
-{
+bool Plugin::Interface::H265Interface::get_extra_data(void* ptr, uint8_t** extra_data, size_t* size) noexcept
+try {
 	if (ptr)
 		return static_cast<H265Interface*>(ptr)->get_extra_data(extra_data, size);
+	return false;
+} catch (const std::exception& ex) {
+	PLOG_ERROR("Unexpected exception in %s: %s", __FUNCTION_NAME__, ex.what());
+	return false;
+} catch (...) {
+	PLOG_ERROR("Unexpected unknown exception in %s.", __FUNCTION_NAME__);
 	return false;
 }
 

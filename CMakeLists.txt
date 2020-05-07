@@ -21,8 +21,8 @@ Include("cmake/util.cmake")
 
 # Automatic Versioning
 Set(VERSION_MAJOR 2)
-Set(VERSION_MINOR 5)
-Set(VERSION_PATCH 1)
+Set(VERSION_MINOR 7)
+Set(VERSION_PATCH 0)
 Set(VERSION_TWEAK 0)
 Set(PROJECT_COMMIT "N/A")
 If(EXISTS "${CMAKE_CURRENT_LIST_DIR}/.git")
@@ -105,78 +105,81 @@ If(WIN32)
 EndIf()
 
 # All Warnings, Extra Warnings, Pedantic
-If(MSVC)
+if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+	# using Clang
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-missing-braces -Wmissing-field-initializers -Wno-c++98-compat-pedantic -Wold-style-cast -Wno-documentation -Wno-documentation-unknown-command -Wno-covered-switch-default -Wno-switch-enum")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+	# GCC: -fpermissive is required as GCC does not allow the same template to be in different namespaces.
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wpedantic -fpermissive -Wno-long-long -Wno-missing-braces -Wmissing-field-initializers")
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Intel")
+	# using Intel C++
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	# Force to always compile with W4
-	If(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
-		String(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
-	Else()
-		Set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
-	EndIf()
-ElseIf(CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX)
-	# Update If necessary
-	Set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-long-long -pedantic")
-EndIf()
+	if(CMAKE_CXX_FLAGS MATCHES "/W[0-4]")
+		string(REGEX REPLACE "/W[0-4]" "/W4" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+	else()
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
+	endif()
+endif()
+# C++ Standard and Extensions
+## Use C++17 and no non-standard extensions.
+set(_CXX_STANDARD 17)
+set(_CXX_EXTENSIONS OFF)
 
 math(EXPR BITS "8*${CMAKE_SIZEOF_VOID_P}")
 
 ################################################################################
 # Options
 ################################################################################
-Set(${PropertyPrefix}OBS_NATIVE FALSE CACHE BOOL "Use native obs-studio build" FORCE)
-Set(${PropertyPrefix}OBS_REFERENCE FALSE CACHE BOOL "Use referenced obs-studio build" FORCE)
-Set(${PropertyPrefix}OBS_PACKAGE FALSE CACHE BOOL "Use packaged obs-studio build" FORCE)
-Set(${PropertyPrefix}OBS_DOWNLOAD FALSE CACHE BOOL "Use downloaded obs-studio build" FORCE)
-MARK_AS_ADVANCED(FORCE
-	${PropertyPrefix}OBS_NATIVE
-	${PropertyPrefix}OBS_PACKAGE
-	${PropertyPrefix}OBS_REFERENCE
-	${PropertyPrefix}OBS_DOWNLOAD)
+set(${PropertyPrefix}OBS_NATIVE FALSE CACHE BOOL "Use native obs-studio build" FORCE)
+set(${PropertyPrefix}OBS_REFERENCE FALSE CACHE BOOL "Use referenced obs-studio build" FORCE)
+set(${PropertyPrefix}OBS_PACKAGE FALSE CACHE BOOL "Use packaged obs-studio build" FORCE)
+set(${PropertyPrefix}OBS_DOWNLOAD FALSE CACHE BOOL "Use downloaded obs-studio build" FORCE)
+mark_as_advanced(FORCE OBS_NATIVE OBS_PACKAGE OBS_REFERENCE OBS_DOWNLOAD)
 
-If(NOT TARGET libobs)
-	Set(${PropertyPrefix}OBS_STUDIO_DIR "" CACHE PATH "OBS Studio Source/Package Directory")
-	Set(${PropertyPrefix}OBS_DOWNLOAD_VERSION "22.0.2" CACHE STRING "OBS Studio Version to download")
-EndIf()
+if(NOT TARGET libobs)
+	set(${PropertyPrefix}OBS_STUDIO_DIR "" CACHE PATH "OBS Studio Source/Package Directory")
+	set(${PropertyPrefix}OBS_DOWNLOAD_VERSION "24.0.1-ci" CACHE STRING "OBS Studio Version to download")
+endif()
 
-Set(AMF_SDK_DIR "${PROJECT_SOURCE_DIR}/AMF/" CACHE PATH "AMD Advanced Media Framework SDK Directory")
-
-If(NOT ${PropertyPrefix}OBS_NATIVE)
-	Set(CMAKE_PACKAGE_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Path for generated archives.")
-	Set(CMAKE_PACKAGE_NAME "${PROJECT_NAME}" CACHE STRING "Name for the generated archives.")
-	Set(CMAKE_PACKAGE_SUFFIX_OVERRIDE "" CACHE STRING "Override for the suffix.")
-EndIf()
+if(NOT ${PropertyPrefix}OBS_NATIVE)
+	set(${PropertyPrefix}OBS_DEPENDENCIES_DIR "" CACHE PATH "Path to OBS Dependencies")
+	set(CMAKE_PACKAGE_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Path for generated archives.")
+	set(CMAKE_PACKAGE_NAME "${PROJECT_NAME}" CACHE STRING "Name for the generated archives.")
+	set(CMAKE_PACKAGE_SUFFIX_OVERRIDE "" CACHE STRING "Override for the suffix.")
+endif()
 
 ################################################################################
 # Dependencies
 ################################################################################
 
-# AMF SDK
-If(AMF_SDK_DIR STREQUAL "")
-	Message(STATUS "AMF_SDK_DIR not set! ${PROJECT_NAME} plugin disabled.")
-	Return()
-EndIf()
-
-If(NOT EXISTS "${AMF_SDK_DIR}/amf/public/include/components/VideoEncoderVCE.h")
-	Message(STATUS "AMF_SDK_DIR invalid! ${PROJECT_NAME} plugin disabled.")
-	Return()
-EndIf()
-
 # Detect OBS Studio Type
-If(TARGET libobs)
-	Message(STATUS "${PROJECT_NAME}: Using native obs-studio.")
+if(TARGET libobs)
+	message(STATUS "${PROJECT_NAME}: Using native obs-studio.")
 	CacheSet(${PropertyPrefix}OBS_NATIVE TRUE)	
-Else()
+else()
 	CacheSet(${PropertyPrefix}OBS_NATIVE FALSE)
-	IF(EXISTS "${OBS_STUDIO_DIR}/cmake/LibObs/LibObsConfig.cmake")
-		Message(STATUS "${PROJECT_NAME}: Using packaged obs-studio.")
+	if(EXISTS "${OBS_STUDIO_DIR}/cmake/LibObs/LibObsConfig.cmake")
+		message(STATUS "${PROJECT_NAME}: Using packaged obs-studio.")
 		CacheSet(${PropertyPrefix}OBS_PACKAGE TRUE)
-	ElseIf(EXISTS "${OBS_STUDIO_DIR}/libobs/obs-module.h")
-		Message(STATUS "${PROJECT_NAME}: Using referenced obs-studio.")
+	elseif(EXISTS "${OBS_STUDIO_DIR}/libobs/obs-module.h")
+		message(STATUS "${PROJECT_NAME}: Using referenced obs-studio.")
 		CacheSet(${PropertyPrefix}OBS_REFERENCE TRUE)
-	Else()
-		Message(STATUS "${PROJECT_NAME}: No OBS Studio detected, using downloadable prebuilt binaries.")
+	else()
+		message(STATUS "${PROJECT_NAME}: No OBS Studio detected, using downloadable prebuilt binaries.")
 		CacheSet(${PropertyPrefix}OBS_DOWNLOAD TRUE)
-		Set(${PropertyPrefix}OBS_DOWNLOAD_URL "https://github.com/Xaymar/obs-studio/releases/download/${OBS_DOWNLOAD_VERSION}/obs-studio-${ARCH}-vs2017.7z")
-	EndIf()
+		if (WIN32)
+			set(${PropertyPrefix}OBS_DOWNLOAD_URL "https://github.com/Xaymar/obs-studio/releases/download/${OBS_DOWNLOAD_VERSION}/obs-studio-${ARCH}-0.0.0.0-vs2017.7z")
+		elseif(UNIX)
+			set(${PropertyPrefix}OBS_DOWNLOAD_URL "https://github.com/Xaymar/obs-studio/releases/download/${OBS_DOWNLOAD_VERSION}/obs-studio-${ARCH}-0.0.0.0-gcc.7z")
+		endif()
+	endif()
+endif()
+
+If(NOT ${PropertyPrefix}OBS_NATIVE)
+	Set(CMAKE_PACKAGE_PREFIX "${CMAKE_BINARY_DIR}" CACHE PATH "Path for generated archives.")
+	Set(CMAKE_PACKAGE_NAME "${PROJECT_NAME}" CACHE STRING "Name for the generated archives.")
+	Set(CMAKE_PACKAGE_SUFFIX_OVERRIDE "" CACHE STRING "Override for the suffix.")
 EndIf()
 
 # CMake Modules
@@ -210,7 +213,6 @@ Else()
 	Message(CRITICAL "Impossible case reached, very system stability.")
 	Return()
 EndIf()
-
 
 ################################################################################
 # Code
@@ -284,7 +286,7 @@ Target_Include_Directories(${PROJECT_NAME}
 	PUBLIC
 		"${PROJECT_BINARY_DIR}/include"
 		"${PROJECT_SOURCE_DIR}/include"
-		"${AMF_SDK_DIR}/amf/public/include"
+		"${PROJECT_SOURCE_DIR}/AMF/amf/public/include"
 	PRIVATE
 		"${PROJECT_BINARY_DIR}/source"
 		"${PROJECT_SOURCE_DIR}/source"
