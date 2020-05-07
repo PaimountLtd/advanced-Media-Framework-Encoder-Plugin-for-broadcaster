@@ -100,22 +100,22 @@ Plugin::API::Adapter Plugin::API::IAPI::GetAdapterByName(const std::string& name
 static std::vector<std::shared_ptr<IAPI>> s_APIInstances;
 void                                      Plugin::API::InitializeAPIs()
 {
-// DirectX 11
 #ifdef _WIN32
 	if (IsWindows8OrGreater()) {
+		// DirectX 11
 		try {
 			s_APIInstances.insert(s_APIInstances.end(), std::make_shared<Direct3D11>());
+		} catch (const std::exception& PLOG_VAR(ex)) {
+			PLOG_WARNING("Direct3D 11 is not supported due to error: %s", ex.what());
 		} catch (...) {
 			PLOG_WARNING("Direct3D 11 not supported.");
 		}
-	}
-#endif
-
-// DirectX 9
-#ifdef _WIN32
-	if (IsWindowsXPOrGreater()) {
+	} else if (IsWindowsXPOrGreater()) {
+		// Direct3D 9
 		try {
 			s_APIInstances.insert(s_APIInstances.end(), std::make_shared<Direct3D9>());
+		} catch (const std::exception& PLOG_VAR(ex)) {
+			PLOG_WARNING("Direct3D 9 is not supported due to error: %s", ex.what());
 		} catch (...) {
 			PLOG_WARNING("Direct3D 9 not supported.");
 		}
@@ -146,24 +146,18 @@ size_t Plugin::API::CountAPIs()
 
 std::string Plugin::API::GetAPIName(size_t index)
 {
-	auto indAPI = s_APIInstances.begin();
-	indAPI + index; // Advanced by x elements.
-
-	if (indAPI == s_APIInstances.end())
+	if (index >= s_APIInstances.size())
 		throw std::exception("Invalid API Index");
 
-	return indAPI->get()->GetName();
+	return s_APIInstances[index].get()->GetName();
 }
 
 std::shared_ptr<IAPI> Plugin::API::GetAPI(size_t index)
 {
-	auto indAPI = s_APIInstances.begin();
-	indAPI + index; // Advanced by x elements.
-
-	if (indAPI == s_APIInstances.end())
+	if (index >= s_APIInstances.size())
 		throw std::exception("Invalid API Index");
 
-	return *indAPI;
+	return s_APIInstances[index];
 }
 
 std::shared_ptr<IAPI> Plugin::API::GetAPI(const std::string& name)

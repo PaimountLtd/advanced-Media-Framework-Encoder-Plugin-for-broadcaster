@@ -35,15 +35,11 @@ using namespace Plugin::AMD;
 
 class CustomWriter : public amf::AMFTraceWriter {
 	public:
-	virtual void __cdecl Write(const wchar_t* scope, const wchar_t* message) override
+	virtual void __cdecl Write(const wchar_t*, const wchar_t* message) override
 	{
 #ifndef LITE_OBS
-		const wchar_t* realmsg = &(message[(33 + wcslen(scope) + 2)]); // Skip Time & Scope
-		size_t         msgLen  = wcslen(realmsg) - (sizeof(wchar_t));
-
-		blog(LOG_DEBUG, "[AMF Runtime] [%.*ls][%ls] %.*ls", 12, &(message[11]), scope, msgLen, realmsg);
+		blog(LOG_DEBUG, "[AMF] %.*ls", wcsnlen_s(message, 65535), message);
 #else
-		scope;
 		message;
 #endif
 	}
@@ -104,7 +100,7 @@ Plugin::AMD::AMF::AMF()
 #endif
 
 	// Initialize AMF Library
-	PLOG_DEBUG("<" __FUNCTION_NAME__ "> Initializing...");
+	PLOG_DEBUG("<%s> Initializing...", __FUNCTION_NAME__);
 
 	// Load AMF Runtime Library
 	m_AMFModule = LoadLibraryW(AMF_DLL_NAME);
@@ -112,13 +108,13 @@ Plugin::AMD::AMF::AMF()
 		QUICK_FORMAT_MESSAGE(msg, "Unable to load '%ls', error code %ld.", AMF_DLL_NAME, GetLastError());
 		throw std::exception(msg.data());
 	} else {
-		PLOG_DEBUG("<" __FUNCTION_NAME__ "> Loaded '%ls'.", AMF_DLL_NAME);
+		PLOG_DEBUG("<%s> Loaded '%ls'.", __FUNCTION_NAME__, AMF_DLL_NAME);
 	}
 
 // Windows: Get Product Version for Driver Matching
 #ifdef _WIN32
 	{
-		verbuf.resize(GetFileVersionInfoSizeW(AMF_DLL_NAME, nullptr) * 2);
+		verbuf.resize(static_cast<size_t>(GetFileVersionInfoSizeW(AMF_DLL_NAME, nullptr)) * 2);
 		GetFileVersionInfoW(AMF_DLL_NAME, 0, (DWORD)verbuf.size(), verbuf.data());
 
 		void* pBlock = verbuf.data();
@@ -156,8 +152,9 @@ Plugin::AMD::AMF::AMF()
 	}
 
 	/// Blacklist Drivers with older SDK.
-	if (m_AMFVersion_Runtime < AMF_MAKE_FULL_VERSION(1, 4, 6, 0)) {
-		PLOG_WARNING("The AMF Runtime is very old and unsupported, consider updating your drivers.");
+	if (m_AMFVersion_Runtime < AMF_FULL_VERSION) {
+		PLOG_ERROR("The detected AMF runtime is too old, please update your drivers.");
+		throw std::runtime_error("AMF Runtime is outdated.");
 	}
 
 	/// Initialize AMF
@@ -173,7 +170,7 @@ Plugin::AMD::AMF::AMF()
 			throw std::exception(msg.data());
 		}
 	}
-	PLOG_DEBUG("<" __FUNCTION_NAME__ "> AMF Library initialized.");
+	PLOG_DEBUG("<%s> AMF Library initialized.", __FUNCTION_NAME__);
 
 	/// Retrieve Trace Object.
 	res = m_AMFFactory->GetTrace(&m_AMFTrace);
@@ -210,12 +207,12 @@ Plugin::AMD::AMF::AMF()
 		(uint16_t)((m_AMFVersion_Runtime >> 32ull) & 0xFFFF), (uint16_t)((m_AMFVersion_Runtime >> 16ull) & 0xFFFF),
 		(uint16_t)((m_AMFVersion_Runtime & 0xFFFF)), lProductVersionSize, pProductVersion);
 
-	PLOG_DEBUG("<" __FUNCTION_NAME__ "> Initialized.");
+	PLOG_DEBUG("<%s> Initialized.", __FUNCTION_NAME__);
 }
 
 Plugin::AMD::AMF::~AMF()
 {
-	PLOG_DEBUG("<" __FUNCTION_NAME__ "> Finalizing.");
+	PLOG_DEBUG("<%s> Finalizing.", __FUNCTION_NAME__);
 	if (m_AMFModule) {
 		if (m_TraceWriter) {
 			if (m_AMFTrace)
@@ -226,7 +223,7 @@ Plugin::AMD::AMF::~AMF()
 
 		FreeLibrary(m_AMFModule);
 	}
-	PLOG_DEBUG("<" __FUNCTION_NAME__ "> Finalized.");
+	PLOG_DEBUG("<%s> Finalized.", __FUNCTION_NAME__);
 
 #pragma region Null Class Members
 	m_TimerPeriod        = 0;
@@ -260,9 +257,9 @@ amf::AMFDebug* Plugin::AMD::AMF::GetDebug()
 void Plugin::AMD::AMF::EnableDebugTrace(bool enable)
 {
 	if (!m_AMFTrace)
-		throw std::exception("<" __FUNCTION_NAME__ "> called without a AMFTrace object!");
+		throw std::exception("called without a AMFTrace object!");
 	if (!m_AMFDebug)
-		throw std::exception("<" __FUNCTION_NAME__ "> called without a AMFDebug object!");
+		throw std::exception("called without a AMFDebug object!");
 
 #ifndef _WIN64
 	// Older drivers crash due to using the wrong calling standard.
