@@ -157,7 +157,8 @@ Plugin::AMD::AMF::AMF()
 
 	/// Blacklist Drivers with older SDK.
 	if (m_AMFVersion_Runtime < AMF_MAKE_FULL_VERSION(1, 4, 6, 0)) {
-		PLOG_WARNING("The AMF Runtime is very old and unsupported, consider updating your drivers.");
+		PLOG_ERROR("The AMF Runtime is very old and unsupported, consider updating your drivers.");
+		throw std::runtime_error("AMF Runtime is outdated.");
 	}
 
 	/// Initialize AMF
