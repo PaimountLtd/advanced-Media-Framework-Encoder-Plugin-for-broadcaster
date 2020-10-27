@@ -21,6 +21,7 @@
 #include <cinttypes>
 #include <mutex>
 #include <sstream>
+#include <sysinfoapi.h>
 
 using namespace Plugin::API;
 
@@ -39,7 +40,12 @@ class SingletonDXGI {
 
 	SingletonDXGI()
 	{
+		WCHAR system[MAX_PATH];
+		GetSystemDirectory(system, sizeof(system));
+
+		SetDllDirectory(system);
 		hModule = LoadLibrary(TEXT("dxgi.dll"));
+		SetDllDirectory(NULL);
 		if (hModule == 0)
 			throw std::exception("Unable to load 'dxgi.dll'.");
 	}
@@ -101,7 +107,12 @@ class SingletonD3D11 {
 
 	SingletonD3D11()
 	{
+		WCHAR system[MAX_PATH];
+		GetSystemDirectory(system, sizeof(system));
+
+		SetDllDirectory(system);
 		hModule = LoadLibrary(TEXT("d3d11.dll"));
+		SetDllDirectory(NULL);
 		if (hModule == 0)
 			throw std::exception("Unable to load 'd3d11.dll'.");
 	}

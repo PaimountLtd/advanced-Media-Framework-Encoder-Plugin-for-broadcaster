@@ -28,6 +28,7 @@
 #if defined(_WIN32) || defined(_WIN64)
 extern "C" {
 #include <windows.h>
+#include <sysinfoapi.h>
 }
 #endif
 
@@ -102,8 +103,18 @@ Plugin::AMD::AMF::AMF()
 	// Initialize AMF Library
 	PLOG_DEBUG("<%s> Initializing...", __FUNCTION_NAME__);
 
+#if defined(_WIN32) || defined(_WIN64)
+	WCHAR system[MAX_PATH];
+	GetSystemDirectory(system, sizeof(system));
+
+
 	// Load AMF Runtime Library
+	SetDllDirectory(system);
 	m_AMFModule = LoadLibraryW(AMF_DLL_NAME);
+	SetDllDirectory(nullptr);
+#else
+	m_AMFModule = LoadLibraryW(AMF_DLL_NAME);
+#endif
 	if (!m_AMFModule) {
 		QUICK_FORMAT_MESSAGE(msg, "Unable to load '%ls', error code %ld.", AMF_DLL_NAME, GetLastError());
 		throw std::exception(msg.data());
