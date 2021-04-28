@@ -195,7 +195,10 @@ MODULE_EXPORT bool obs_module_load(void)
 
 		PLOG_DEBUG("<%s> Loaded.", __FUNCTION_NAME__);
 		return true;
-	} catch (const std::exception& ex) {
+	} catch (const AMFException& amf_ex) {
+		PLOG_ERROR("Failed to load AMF due to error: %s, code ", amf_ex.what(), amf_ex.Code());
+	}
+	 catch (const std::exception& ex) {
 		PLOG_ERROR("Failed to load due to error: %s", ex.what());
 	} catch (...) {
 		PLOG_ERROR("Failed to load with unknown error.");

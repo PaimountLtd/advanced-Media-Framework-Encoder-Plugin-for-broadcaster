@@ -76,10 +76,18 @@ Plugin::AMD::CapabilityManager::CapabilityManager()
 					if (enc != nullptr) {
 						codec.second = true;
 					}
-				} catch (const std::exception& e) {
+				} catch (const AMFException& amf_ex) {
+						PLOG_DEBUG("[Capability Manager] Testing %s Adapter '%s' with codec %s failed, reason: %s. Aborting",
+							   api->GetName().c_str(), adapter.Name.c_str(), Utility::CodecToString(codec.first),
+							   amf_ex.what(), amf_ex.Code());
+						throw amf_ex;
+				}
+				
+				 catch (const std::exception& e) {
 					PLOG_DEBUG("[Capability Manager] Testing %s Adapter '%s' with codec %s failed, reason: %s",
 							   api->GetName().c_str(), adapter.Name.c_str(), Utility::CodecToString(codec.first),
 							   e.what());
+							   
 #ifdef LITE_OBS
 					e;
 #endif

@@ -34,6 +34,15 @@ extern "C" {
 
 namespace Plugin {
 	namespace AMD {
+
+		class AMFException: public std::exception {
+			public:
+				AMFException(const char* what, int code): std::exception(what), code(code) { }
+				int Code() { return code; }
+			private:
+				int code;
+		}
+
 		class AMF {
 #pragma region Singleton
 			public:
