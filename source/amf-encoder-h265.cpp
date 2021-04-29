@@ -69,7 +69,7 @@ void Plugin::AMD::EncoderH265::SetUsage(Usage v)
 	if (res != AMF_OK) {
 		QUICK_FORMAT_MESSAGE(errMsg, "<Id: %lld> <%s> Failed to set to %s, error %ls (code %d)", m_UniqueId,
 							 __FUNCTION_NAME__, Utility::UsageToString(v), m_AMF->GetTrace()->GetResultText(res), res);
-		throw std::exception(errMsg.c_str());
+		throw AMFException(errMsg.c_str(), res);
 	}
 }
 

@@ -114,7 +114,7 @@ Plugin::AMD::Encoder::Encoder(Codec codec, std::shared_ptr<API::IAPI> videoAPI, 
 	if (res != AMF_OK) {
 		QUICK_FORMAT_MESSAGE(errMsg, "<Id: %llu> Creating a AMF Context failed, error %ls (code %d).", m_UniqueId,
 							 m_AMF->GetTrace()->GetResultText(res), res);
-		throw std::exception(errMsg.c_str());
+		throw AMFException(errMsg.c_str(), res);
 	}
 	/// Initialize Context using selected API
 	switch (m_API->GetType()) {
@@ -148,7 +148,7 @@ Plugin::AMD::Encoder::Encoder(Codec codec, std::shared_ptr<API::IAPI> videoAPI, 
 		QUICK_FORMAT_MESSAGE(errMsg, "<Id: %llu> Initializing %s API with Adapter '%s' failed, error %ls (code %d).",
 							 m_UniqueId, m_API->GetName().c_str(), m_APIAdapter.Name.c_str(),
 							 m_AMF->GetTrace()->GetResultText(res), res);
-		throw std::exception(errMsg.c_str());
+		throw AMFException(errMsg.c_str(), res);
 	}
 
 	// Initialize OpenCL (if possible)
@@ -182,26 +182,26 @@ Plugin::AMD::Encoder::Encoder(Codec codec, std::shared_ptr<API::IAPI> videoAPI, 
 	if (res != AMF_OK) {
 		QUICK_FORMAT_MESSAGE(errMsg, "<Id: %llu> Creating frame converter component failed, error %ls (code %d)",
 							 m_UniqueId, m_AMF->GetTrace()->GetResultText(res), res);
-		throw std::exception(errMsg.c_str());
+		throw AMFException(errMsg.c_str(), res);
 	}
 	res = m_AMFConverter->SetProperty(AMF_VIDEO_CONVERTER_MEMORY_TYPE, amf::AMF_MEMORY_UNKNOWN);
 	if (res != AMF_OK) {
 		QUICK_FORMAT_MESSAGE(errMsg, "<Id: %llu> Unable to set converter memory type, error %ls (code %d)", m_UniqueId,
 							 m_AMF->GetTrace()->GetResultText(res), res);
-		throw std::exception(errMsg.c_str());
+		throw AMFException(errMsg.c_str(), res);
 	}
 	res = m_AMFConverter->SetProperty(AMF_VIDEO_CONVERTER_OUTPUT_FORMAT, amf::AMF_SURFACE_NV12);
 	if (res != AMF_OK) {
 		QUICK_FORMAT_MESSAGE(errMsg, "<Id: %llu> Unable to set converter output format, error %ls (code %d)",
 							 m_UniqueId, m_AMF->GetTrace()->GetResultText(res), res);
-		throw std::exception(errMsg.c_str());
+		throw AMFException(errMsg.c_str(), res);
 	}
 	res =
 		m_AMFConverter->SetProperty(AMF_VIDEO_CONVERTER_COLOR_PROFILE, Utility::ColorSpaceToAMFConverter(m_ColorSpace));
 	if (res != AMF_OK) {
 		QUICK_FORMAT_MESSAGE(errMsg, "<Id: %llu> Unable to set converter color profile, error %ls (code %d)",
 							 m_UniqueId, m_AMF->GetTrace()->GetResultText(res), res);
-		throw std::exception(errMsg.c_str());
+		throw AMFException(errMsg.c_str(), res);
 	}
 	res = m_AMFConverter->SetProperty(AMF_VIDEO_CONVERTER_TRANSFER_CHARACTERISTIC,
 									  Utility::ColorSpaceToTransferCharacteristic(m_ColorSpace));
@@ -216,7 +216,7 @@ Plugin::AMD::Encoder::Encoder(Codec codec, std::shared_ptr<API::IAPI> videoAPI, 
 	if (res != AMF_OK) {
 		QUICK_FORMAT_MESSAGE(errMsg, "<Id: %llu> Unable to create %s encoder, error %ls (code %d)", m_UniqueId,
 							 Utility::CodecToString(codec), m_AMF->GetTrace()->GetResultText(res), res);
-		throw std::exception(errMsg.c_str());
+		throw AMFException(errMsg.c_str(), res);
 	}
 
 	// Show complete initialization in log.
