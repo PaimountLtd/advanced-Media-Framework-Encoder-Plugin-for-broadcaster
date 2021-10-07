@@ -80,7 +80,6 @@ Plugin::AMD::CapabilityManager::CapabilityManager()
 						PLOG_DEBUG("[Capability Manager] Testing %s Adapter '%s' with codec %s failed, reason: %s. Aborting",
 							   api->GetName().c_str(), adapter.Name.c_str(), Utility::CodecToString(codec.first),
 							   amf_ex.what(), amf_ex.Code());
-						throw amf_ex;
 				}
 				
 				 catch (const std::exception& e) {
