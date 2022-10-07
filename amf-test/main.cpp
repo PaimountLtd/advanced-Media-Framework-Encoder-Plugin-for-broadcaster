@@ -55,11 +55,14 @@ int main(int argc, char *argv[])
 	SetErrorMode(SEM_NOGPFAULTERRORBOX | SEM_FAILCRITICALERRORS);
 
 	HANDLE hMainThread;
-	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &hMainThread, 0, FALSE, DUPLICATE_SAME_ACCESS);
+	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(),
+			GetCurrentProcess(), &hMainThread, 0, FALSE,
+			DUPLICATE_SAME_ACCESS);
 
 	DWORD threadId;
 	HANDLE hThread;
-	hThread = CreateThread(NULL, 0, TimeoutThread, hMainThread, 0, &threadId);
+	hThread =
+		CreateThread(NULL, 0, TimeoutThread, hMainThread, 0, &threadId);
 	CloseHandle(hThread);
 #endif
 

@@ -48,7 +48,8 @@ const char *Utility::obs_module_text_multi(const char *key, uint8_t depth)
 	static std::map<std::string, std::string> translatedMap;
 #ifndef LITE_OBS
 	// Check if it already was translated.
-	if (!translatedMap.count(std::string(key))) { // If not, translate it now.
+	if (!translatedMap.count(
+		    std::string(key))) { // If not, translate it now.
 		const char *out = obs_module_text(key);
 
 		// Allow for nested translations using \@...\@ sequences.
@@ -70,19 +71,29 @@ const char *Utility::obs_module_text_multi(const char *key, uint8_t depth)
 					if (haveSequence) {
 						seqEnd = pos;
 
-						std::string sequence = walkable.substr(seqStart, seqEnd - seqStart);
-						fout << obs_module_text_multi(sequence.c_str(), depth--);
+						std::string sequence =
+							walkable.substr(
+								seqStart,
+								seqEnd -
+									seqStart);
+						fout << obs_module_text_multi(
+							sequence.c_str(),
+							depth--);
 					} else {
 						seqStart = pos + 2;
 					}
 					haveSequence = !haveSequence;
 					pos = pos + 1;
 				} else if (!haveSequence) {
-					fout << walked.substr(0, 1); // Append the left character.
+					fout << walked.substr(
+						0,
+						1); // Append the left character.
 				}
 			}
 
-			std::pair<std::string, std::string> kv = std::pair<std::string, std::string>(std::string(key), fout.str());
+			std::pair<std::string, std::string> kv =
+				std::pair<std::string, std::string>(
+					std::string(key), fout.str());
 			translatedMap.insert(kv);
 		} else {
 			return out;
@@ -106,11 +117,14 @@ void Utility::fill_api_list(obs_property_t *property, Plugin::AMD::Codec codec)
 
 	for (auto api : Plugin::API::EnumerateAPIs()) {
 		if (cm->IsCodecSupportedByAPI(codec, api->GetType()))
-			obs_property_list_add_string(property, api->GetName().c_str(), api->GetName().c_str());
+			obs_property_list_add_string(property,
+						     api->GetName().c_str(),
+						     api->GetName().c_str());
 	}
 }
 
-void Utility::fill_device_list(obs_property_t *property, std::string api_name, Plugin::AMD::Codec codec)
+void Utility::fill_device_list(obs_property_t *property, std::string api_name,
+			       Plugin::AMD::Codec codec)
 {
 	obs_property_list_clear(property);
 
@@ -122,8 +136,10 @@ void Utility::fill_device_list(obs_property_t *property, std::string api_name, P
 			int32_t id[2];
 			int64_t v;
 		} adapterid = {adapter.idLow, adapter.idHigh};
-		if (cm->IsCodecSupportedByAPIAdapter(codec, api->GetType(), adapter))
-			obs_property_list_add_int(property, adapter.Name.c_str(), adapterid.v);
+		if (cm->IsCodecSupportedByAPIAdapter(codec, api->GetType(),
+						     adapter))
+			obs_property_list_add_int(
+				property, adapter.Name.c_str(), adapterid.v);
 	}
 }
 #endif
@@ -225,7 +241,8 @@ Utility::ColorSpaceToAMFConverter(Plugin::AMD::ColorSpace v)
 	throw std::runtime_error("Invalid Parameter");
 }
 
-AMF_COLOR_TRANSFER_CHARACTERISTIC_ENUM Utility::ColorSpaceToTransferCharacteristic(Plugin::AMD::ColorSpace v)
+AMF_COLOR_TRANSFER_CHARACTERISTIC_ENUM
+Utility::ColorSpaceToTransferCharacteristic(Plugin::AMD::ColorSpace v)
 {
 	switch (v) {
 	case ColorSpace::BT601:
@@ -301,7 +318,8 @@ AMF_VIDEO_ENCODER_HEVC_USAGE_ENUM Utility::UsageToAMFH265(Plugin::AMD::Usage v)
 	throw std::runtime_error("Invalid Parameter");
 }
 
-Plugin::AMD::Usage Utility::UsageFromAMFH265(AMF_VIDEO_ENCODER_HEVC_USAGE_ENUM v)
+Plugin::AMD::Usage
+Utility::UsageFromAMFH265(AMF_VIDEO_ENCODER_HEVC_USAGE_ENUM v)
 {
 	switch (v) {
 	case AMF_VIDEO_ENCODER_HEVC_USAGE_TRANSCONDING:
@@ -344,7 +362,8 @@ Utility::QualityPresetToAMFH264(Plugin::AMD::QualityPreset v)
 	throw std::runtime_error("Invalid Parameter");
 }
 
-Plugin::AMD::QualityPreset Utility::QualityPresetFromAMFH264(AMF_VIDEO_ENCODER_QUALITY_PRESET_ENUM v)
+Plugin::AMD::QualityPreset
+Utility::QualityPresetFromAMFH264(AMF_VIDEO_ENCODER_QUALITY_PRESET_ENUM v)
 {
 	switch (v) {
 	case AMF_VIDEO_ENCODER_QUALITY_PRESET_SPEED:
@@ -371,7 +390,8 @@ Utility::QualityPresetToAMFH265(Plugin::AMD::QualityPreset v)
 	throw std::runtime_error("Invalid Parameter");
 }
 
-Plugin::AMD::QualityPreset Utility::QualityPresetFromAMFH265(AMF_VIDEO_ENCODER_HEVC_QUALITY_PRESET_ENUM v)
+Plugin::AMD::QualityPreset
+Utility::QualityPresetFromAMFH265(AMF_VIDEO_ENCODER_HEVC_QUALITY_PRESET_ENUM v)
 {
 	switch (v) {
 	case AMF_VIDEO_ENCODER_HEVC_QUALITY_PRESET_SPEED:
@@ -419,7 +439,8 @@ AMF_VIDEO_ENCODER_PROFILE_ENUM Utility::ProfileToAMFH264(Plugin::AMD::Profile v)
 	throw std::runtime_error("Invalid Parameter");
 }
 
-Plugin::AMD::Profile Utility::ProfileFromAMFH264(AMF_VIDEO_ENCODER_PROFILE_ENUM v)
+Plugin::AMD::Profile
+Utility::ProfileFromAMFH264(AMF_VIDEO_ENCODER_PROFILE_ENUM v)
 {
 #pragma warning(disable : 4063) // Developer Note: I know better, Compiler.
 	switch (v) {
@@ -447,7 +468,8 @@ Utility::ProfileToAMFH265(Plugin::AMD::Profile v)
 	throw std::runtime_error("Invalid Parameter");
 }
 
-Plugin::AMD::Profile Utility::ProfileFromAMFH265(AMF_VIDEO_ENCODER_HEVC_PROFILE_ENUM v)
+Plugin::AMD::Profile
+Utility::ProfileFromAMFH265(AMF_VIDEO_ENCODER_HEVC_PROFILE_ENUM v)
 {
 	switch (v) {
 	case AMF_VIDEO_ENCODER_HEVC_PROFILE_MAIN:
@@ -480,7 +502,8 @@ Utility::TierToAMFH265(Plugin::AMD::H265::Tier v)
 	throw std::runtime_error("Invalid Parameter");
 }
 
-Plugin::AMD::H265::Tier Utility::TierFromAMFH265(AMF_VIDEO_ENCODER_HEVC_TIER_ENUM v)
+Plugin::AMD::H265::Tier
+Utility::TierFromAMFH265(AMF_VIDEO_ENCODER_HEVC_TIER_ENUM v)
 {
 	switch (v) {
 	case AMF_VIDEO_ENCODER_HEVC_TIER_MAIN:
@@ -519,7 +542,8 @@ Utility::CodingTypeToAMFH264(Plugin::AMD::CodingType v)
 	throw std::runtime_error("Invalid Parameter");
 }
 
-Plugin::AMD::CodingType Utility::CodingTypeFromAMFH264(AMF_VIDEO_ENCODER_CODING_ENUM v)
+Plugin::AMD::CodingType
+Utility::CodingTypeFromAMFH264(AMF_VIDEO_ENCODER_CODING_ENUM v)
 {
 	switch (v) {
 	case AMF_VIDEO_ENCODER_UNDEFINED:
@@ -586,7 +610,8 @@ Utility::RateControlMethodToAMFH264(Plugin::AMD::RateControlMethod v)
 	throw std::runtime_error("Invalid Parameter");
 }
 
-Plugin::AMD::RateControlMethod Utility::RateControlMethodFromAMFH264(AMF_VIDEO_ENCODER_RATE_CONTROL_METHOD_ENUM v)
+Plugin::AMD::RateControlMethod Utility::RateControlMethodFromAMFH264(
+	AMF_VIDEO_ENCODER_RATE_CONTROL_METHOD_ENUM v)
 {
 	switch (v) {
 	case AMF_VIDEO_ENCODER_RATE_CONTROL_METHOD_CONSTANT_QP:
@@ -617,7 +642,8 @@ Utility::RateControlMethodToAMFH265(Plugin::AMD::RateControlMethod v)
 	throw std::runtime_error("Invalid Parameter");
 }
 
-Plugin::AMD::RateControlMethod Utility::RateControlMethodFromAMFH265(AMF_VIDEO_ENCODER_HEVC_RATE_CONTROL_METHOD_ENUM v)
+Plugin::AMD::RateControlMethod Utility::RateControlMethodFromAMFH265(
+	AMF_VIDEO_ENCODER_HEVC_RATE_CONTROL_METHOD_ENUM v)
 {
 	switch (v) {
 	case AMF_VIDEO_ENCODER_HEVC_RATE_CONTROL_METHOD_CONSTANT_QP:
@@ -663,7 +689,8 @@ Utility::PrePassModeToAMFH264(Plugin::AMD::PrePassMode v)
 	}
 	throw std::runtime_error("Invalid Parameter");
 }
-Plugin::AMD::PrePassMode Utility::PrePassModeFromAMFH264(AMF_VIDEO_ENCODER_PREENCODE_MODE_ENUM v)
+Plugin::AMD::PrePassMode
+Utility::PrePassModeFromAMFH264(AMF_VIDEO_ENCODER_PREENCODE_MODE_ENUM v)
 {
 	switch (v) {
 	case AMF_VIDEO_ENCODER_PREENCODE_DISABLED:
@@ -736,24 +763,37 @@ const char *Utility::SliceControlModeToString(Plugin::AMD::SliceControlMode v)
 	throw std::runtime_error("Invalid Parameter");
 }
 
-Plugin::AMD::ProfileLevel Utility::H264ProfileLevel(std::pair<uint32_t, uint32_t> resolution, std::pair<uint32_t, uint32_t> frameRate)
+Plugin::AMD::ProfileLevel
+Utility::H264ProfileLevel(std::pair<uint32_t, uint32_t> resolution,
+			  std::pair<uint32_t, uint32_t> frameRate)
 {
 	typedef std::pair<uint32_t, uint32_t> levelRestriction;
 	typedef std::pair<ProfileLevel, levelRestriction> level;
 
-	static const level profileLevelLimit[] = {// [Level, [Samples, Samples_Per_Sec]]
-						  level(ProfileLevel::L10, levelRestriction(25344, 380160)), level(ProfileLevel::L11, levelRestriction(101376, 768000)),
-						  level(ProfileLevel::L12, levelRestriction(101376, 1536000)), level(ProfileLevel::L13, levelRestriction(101376, 3041280)),
-						  level(ProfileLevel::L20, levelRestriction(101376, 3041280)), level(ProfileLevel::L21, levelRestriction(202752, 5068800)),
-						  level(ProfileLevel::L22, levelRestriction(414720, 5184000)), level(ProfileLevel::L30, levelRestriction(414720, 10368000)),
-						  level(ProfileLevel::L31, levelRestriction(921600, 27648000)), level(ProfileLevel::L32, levelRestriction(1310720, 55296000)),
-						  //level(H264ProfileLevel::40, levelRestriction(2097152, 62914560)), // Technically identical to 4.1, but backwards compatible.
-						  level(ProfileLevel::L41, levelRestriction(2097152, 62914560)), level(ProfileLevel::L42, levelRestriction(2228224, 133693440)),
-						  level(ProfileLevel::L50, levelRestriction(5652480, 150994944)), level(ProfileLevel::L51, levelRestriction(9437184, 251658240)),
-						  level(ProfileLevel::L52, levelRestriction(9437184, 530841600)), level((ProfileLevel)-1, levelRestriction(0, 0))};
+	static const level profileLevelLimit[] = {
+		// [Level, [Samples, Samples_Per_Sec]]
+		level(ProfileLevel::L10, levelRestriction(25344, 380160)),
+		level(ProfileLevel::L11, levelRestriction(101376, 768000)),
+		level(ProfileLevel::L12, levelRestriction(101376, 1536000)),
+		level(ProfileLevel::L13, levelRestriction(101376, 3041280)),
+		level(ProfileLevel::L20, levelRestriction(101376, 3041280)),
+		level(ProfileLevel::L21, levelRestriction(202752, 5068800)),
+		level(ProfileLevel::L22, levelRestriction(414720, 5184000)),
+		level(ProfileLevel::L30, levelRestriction(414720, 10368000)),
+		level(ProfileLevel::L31, levelRestriction(921600, 27648000)),
+		level(ProfileLevel::L32, levelRestriction(1310720, 55296000)),
+		//level(H264ProfileLevel::40, levelRestriction(2097152, 62914560)), // Technically identical to 4.1, but backwards compatible.
+		level(ProfileLevel::L41, levelRestriction(2097152, 62914560)),
+		level(ProfileLevel::L42, levelRestriction(2228224, 133693440)),
+		level(ProfileLevel::L50, levelRestriction(5652480, 150994944)),
+		level(ProfileLevel::L51, levelRestriction(9437184, 251658240)),
+		level(ProfileLevel::L52, levelRestriction(9437184, 530841600)),
+		level((ProfileLevel)-1, levelRestriction(0, 0))};
 
 	uint32_t samples = resolution.first * resolution.second;
-	uint32_t samples_sec = (uint32_t)ceil((double_t)samples * ((double_t)frameRate.first / (double_t)frameRate.second));
+	uint32_t samples_sec = (uint32_t)ceil(
+		(double_t)samples *
+		((double_t)frameRate.first / (double_t)frameRate.second));
 
 	level curLevel = profileLevelLimit[0];
 	for (uint32_t index = 0; (int32_t)curLevel.first != -1; index++) {
@@ -769,23 +809,38 @@ Plugin::AMD::ProfileLevel Utility::H264ProfileLevel(std::pair<uint32_t, uint32_t
 	}
 	return ProfileLevel::L52;
 }
-Plugin::AMD::ProfileLevel Utility::H265ProfileLevel(std::pair<uint32_t, uint32_t> resolution, std::pair<uint32_t, uint32_t> frameRate)
+Plugin::AMD::ProfileLevel
+Utility::H265ProfileLevel(std::pair<uint32_t, uint32_t> resolution,
+			  std::pair<uint32_t, uint32_t> frameRate)
 {
-	typedef std::pair<uint32_t, uint32_t> levelRestriction; // Total, Main/Sec, High/Sec
+	typedef std::pair<uint32_t, uint32_t>
+		levelRestriction; // Total, Main/Sec, High/Sec
 	typedef std::pair<ProfileLevel, levelRestriction> level;
 
 	static const level profileLevelLimit[] = {
 		// [Level, [Samples, Samples_Per_Sec]]
-		level(ProfileLevel::L10, levelRestriction(36864, 552960)),        level(ProfileLevel::L20, levelRestriction(122880, 3686400)),
-		level(ProfileLevel::L21, levelRestriction(245760, 7372800)),      level(ProfileLevel::L30, levelRestriction(552960, 16588800)),
-		level(ProfileLevel::L31, levelRestriction(983040, 33177600)),     level(ProfileLevel::L40, levelRestriction(2228224, 66846720)),
-		level(ProfileLevel::L41, levelRestriction(2228224, 133693440)),   level(ProfileLevel::L50, levelRestriction(8912896, 267386880)),
-		level(ProfileLevel::L51, levelRestriction(8912896, 534773760)),   level(ProfileLevel::L52, levelRestriction(8912896, 1069547520)),
-		level(ProfileLevel::L60, levelRestriction(35651584, 1069547520)), level(ProfileLevel::L61, levelRestriction(35651584, 2139095040)),
-		level(ProfileLevel::L62, levelRestriction(35651584, 4278190080)), level((ProfileLevel)-1, levelRestriction(0, 0))};
+		level(ProfileLevel::L10, levelRestriction(36864, 552960)),
+		level(ProfileLevel::L20, levelRestriction(122880, 3686400)),
+		level(ProfileLevel::L21, levelRestriction(245760, 7372800)),
+		level(ProfileLevel::L30, levelRestriction(552960, 16588800)),
+		level(ProfileLevel::L31, levelRestriction(983040, 33177600)),
+		level(ProfileLevel::L40, levelRestriction(2228224, 66846720)),
+		level(ProfileLevel::L41, levelRestriction(2228224, 133693440)),
+		level(ProfileLevel::L50, levelRestriction(8912896, 267386880)),
+		level(ProfileLevel::L51, levelRestriction(8912896, 534773760)),
+		level(ProfileLevel::L52, levelRestriction(8912896, 1069547520)),
+		level(ProfileLevel::L60,
+		      levelRestriction(35651584, 1069547520)),
+		level(ProfileLevel::L61,
+		      levelRestriction(35651584, 2139095040)),
+		level(ProfileLevel::L62,
+		      levelRestriction(35651584, 4278190080)),
+		level((ProfileLevel)-1, levelRestriction(0, 0))};
 
 	uint32_t samples = resolution.first * resolution.second;
-	uint32_t samples_sec = (uint32_t)ceil((double_t)samples * ((double_t)frameRate.first / (double_t)frameRate.second));
+	uint32_t samples_sec = (uint32_t)ceil(
+		(double_t)samples *
+		((double_t)frameRate.first / (double_t)frameRate.second));
 
 	level curLevel = profileLevelLimit[0];
 	for (uint32_t index = 0; (int32_t)curLevel.first != -1; index++) {
@@ -831,7 +886,9 @@ void Utility::SetThreadName(uint32_t dwThreadID, const char *threadName)
 	info.dwFlags = 0;
 
 	__try {
-		RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), (ULONG_PTR *)&info);
+		RaiseException(MS_VC_EXCEPTION, 0,
+			       sizeof(info) / sizeof(ULONG_PTR),
+			       (ULONG_PTR *)&info);
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
 	}
 }
@@ -841,7 +898,8 @@ void Utility::SetThreadName(const char *threadName)
 }
 void Utility::SetThreadName(std::thread *pthread, const char *threadName)
 {
-	DWORD threadId = ::GetThreadId(static_cast<HANDLE>(pthread->native_handle()));
+	DWORD threadId =
+		::GetThreadId(static_cast<HANDLE>(pthread->native_handle()));
 	Utility::SetThreadName(threadId, threadName);
 }
 

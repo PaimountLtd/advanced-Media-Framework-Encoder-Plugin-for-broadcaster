@@ -1,4 +1,4 @@
-// 
+//
 // Notice Regarding Standards.  AMD does not provide a license or sublicense to
 // any Intellectual Property Rights relating to any standards, including but not
 // limited to any audio and/or video codec technologies such as MPEG-2, MPEG-4;
@@ -6,9 +6,9 @@
 // (collectively, the "Media Technologies"). For clarity, you will pay any
 // royalties due for such third party technologies, which may include the Media
 // Technologies that are owed as a result of AMD providing the Software to you.
-// 
-// MIT license 
-// 
+//
+// MIT license
+//
 // Copyright (c) 2018 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -38,16 +38,19 @@
 
 #pragma once
 
-#define FFMPEG_VIDEO_DECODER    L"VideoDecoderFFMPEG"
+#define FFMPEG_VIDEO_DECODER L"VideoDecoderFFMPEG"
 
-#define VIDEO_DECODER_ENABLE_DECODING      L"EnableDecoding"   // bool (default = true) - if false, component will not decode anything
-#define VIDEO_DECODER_CODEC_ID             L"CodecID"          // amf_int64 (AMF_STREAM_CODEC_ID_ENUM) codec ID
-#define VIDEO_DECODER_EXTRA_DATA           L"ExtraData"        // interface to AMFBuffer
-#define VIDEO_DECODER_RESOLUTION           L"Resolution"       // AMFSize 
-#define VIDEO_DECODER_BITRATE              L"BitRate"          // amf_int64 (default = 0)
-#define VIDEO_DECODER_FRAMERATE            L"FrameRate"        // AMFRate
-#define VIDEO_DECODER_SEEK_POSITION        L"SeekPosition"     // amf_int64 (default = 0)
+#define VIDEO_DECODER_ENABLE_DECODING \
+	L"EnableDecoding" // bool (default = true) - if false, component will not decode anything
+#define VIDEO_DECODER_CODEC_ID \
+	L"CodecID" // amf_int64 (AMF_STREAM_CODEC_ID_ENUM) codec ID
+#define VIDEO_DECODER_EXTRA_DATA L"ExtraData"       // interface to AMFBuffer
+#define VIDEO_DECODER_RESOLUTION L"Resolution"      // AMFSize
+#define VIDEO_DECODER_BITRATE L"BitRate"            // amf_int64 (default = 0)
+#define VIDEO_DECODER_FRAMERATE L"FrameRate"        // AMFRate
+#define VIDEO_DECODER_SEEK_POSITION L"SeekPosition" // amf_int64 (default = 0)
 
-#define VIDEO_DECODER_COLOR_TRANSFER_CHARACTERISTIC L"ColorTransferChar"    // amf_int64(AMF_COLOR_TRANSFER_CHARACTERISTIC_ENUM); default = AMF_COLOR_TRANSFER_CHARACTERISTIC_UNDEFINED, ISO/IEC 23001-8_2013 § 7.2
+#define VIDEO_DECODER_COLOR_TRANSFER_CHARACTERISTIC \
+	L"ColorTransferChar" // amf_int64(AMF_COLOR_TRANSFER_CHARACTERISTIC_ENUM); default = AMF_COLOR_TRANSFER_CHARACTERISTIC_UNDEFINED, ISO/IEC 23001-8_2013 § 7.2
 
 #endif //#ifndef AMF_VideoDecoderFFMPEG_h

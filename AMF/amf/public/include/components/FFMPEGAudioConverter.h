@@ -1,4 +1,4 @@
-// 
+//
 // Notice Regarding Standards.  AMD does not provide a license or sublicense to
 // any Intellectual Property Rights relating to any standards, including but not
 // limited to any audio and/or video codec technologies such as MPEG-2, MPEG-4;
@@ -6,9 +6,9 @@
 // (collectively, the "Media Technologies"). For clarity, you will pay any
 // royalties due for such third party technologies, which may include the Media
 // Technologies that are owed as a result of AMD providing the Software to you.
-// 
-// MIT license 
-// 
+//
+// MIT license
+//
 // Copyright (c) 2018 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -39,24 +39,32 @@
 
 #pragma once
 
+#define FFMPEG_AUDIO_CONVERTER L"AudioConverterFFMPEG"
 
-#define FFMPEG_AUDIO_CONVERTER    L"AudioConverterFFMPEG"
+#define AUDIO_CONVERTER_IN_AUDIO_BIT_RATE \
+	L"In_BitRate" // amf_int64 (default = 128000)
+#define AUDIO_CONVERTER_IN_AUDIO_SAMPLE_RATE \
+	L"In_SampleRate" // amf_int64 (default = 0)
+#define AUDIO_CONVERTER_IN_AUDIO_CHANNELS \
+	L"In_Channels" // amf_int64 (default = 2)
+#define AUDIO_CONVERTER_IN_AUDIO_SAMPLE_FORMAT \
+	L"In_SampleFormat" // amf_int64 (default = AMFAF_UNKNOWN)  (AMF_AUDIO_FORMAT)
+#define AUDIO_CONVERTER_IN_AUDIO_CHANNEL_LAYOUT \
+	L"In_ChannelLayout" // amf_int64 (default = 0)
+#define AUDIO_CONVERTER_IN_AUDIO_BLOCK_ALIGN \
+	L"In_BlockAlign" // amf_int64 (default = 0)
 
-
-#define AUDIO_CONVERTER_IN_AUDIO_BIT_RATE             L"In_BitRate"                 // amf_int64 (default = 128000)
-#define AUDIO_CONVERTER_IN_AUDIO_SAMPLE_RATE          L"In_SampleRate"              // amf_int64 (default = 0)
-#define AUDIO_CONVERTER_IN_AUDIO_CHANNELS             L"In_Channels"                // amf_int64 (default = 2)
-#define AUDIO_CONVERTER_IN_AUDIO_SAMPLE_FORMAT        L"In_SampleFormat"            // amf_int64 (default = AMFAF_UNKNOWN)  (AMF_AUDIO_FORMAT)
-#define AUDIO_CONVERTER_IN_AUDIO_CHANNEL_LAYOUT       L"In_ChannelLayout"           // amf_int64 (default = 0)
-#define AUDIO_CONVERTER_IN_AUDIO_BLOCK_ALIGN          L"In_BlockAlign"              // amf_int64 (default = 0)
-
-#define AUDIO_CONVERTER_OUT_AUDIO_BIT_RATE            L"Out_BitRate"                // amf_int64 (default = 128000)
-#define AUDIO_CONVERTER_OUT_AUDIO_SAMPLE_RATE         L"Out_SampleRate"             // amf_int64 (default = 0)
-#define AUDIO_CONVERTER_OUT_AUDIO_CHANNELS            L"Out_Channels"               // amf_int64 (default = 2)
-#define AUDIO_CONVERTER_OUT_AUDIO_SAMPLE_FORMAT       L"Out_SampleFormat"           // amf_int64 (default = AMFAF_UNKNOWN)  (AMF_AUDIO_FORMAT)
-#define AUDIO_CONVERTER_OUT_AUDIO_CHANNEL_LAYOUT      L"Out_ChannelLayout"          // amf_int64 (default = 0)
-#define AUDIO_CONVERTER_OUT_AUDIO_BLOCK_ALIGN         L"Out_BlockAlign"             // amf_int64 (default = 0)
-
-
+#define AUDIO_CONVERTER_OUT_AUDIO_BIT_RATE \
+	L"Out_BitRate" // amf_int64 (default = 128000)
+#define AUDIO_CONVERTER_OUT_AUDIO_SAMPLE_RATE \
+	L"Out_SampleRate" // amf_int64 (default = 0)
+#define AUDIO_CONVERTER_OUT_AUDIO_CHANNELS \
+	L"Out_Channels" // amf_int64 (default = 2)
+#define AUDIO_CONVERTER_OUT_AUDIO_SAMPLE_FORMAT \
+	L"Out_SampleFormat" // amf_int64 (default = AMFAF_UNKNOWN)  (AMF_AUDIO_FORMAT)
+#define AUDIO_CONVERTER_OUT_AUDIO_CHANNEL_LAYOUT \
+	L"Out_ChannelLayout" // amf_int64 (default = 0)
+#define AUDIO_CONVERTER_OUT_AUDIO_BLOCK_ALIGN \
+	L"Out_BlockAlign" // amf_int64 (default = 0)
 
 #endif //#ifndef AMF_AudioConverterFFMPEG_h

@@ -39,8 +39,15 @@ struct Adapter {
 	std::string Name;
 
 	Adapter() : idLow(0), idHigh(0), Name("Invalid Device") {}
-	Adapter(const int32_t p_idLow, const int32_t p_idHigh, const std::string &p_Name) : idLow(p_idLow), idHigh(p_idHigh), Name(p_Name) {}
-	Adapter(Adapter const &o) : Name(o.Name), idLow(o.idLow), idHigh(o.idHigh) {}
+	Adapter(const int32_t p_idLow, const int32_t p_idHigh,
+		const std::string &p_Name)
+		: idLow(p_idLow), idHigh(p_idHigh), Name(p_Name)
+	{
+	}
+	Adapter(Adapter const &o)
+		: Name(o.Name), idLow(o.idLow), idHigh(o.idHigh)
+	{
+	}
 	void operator=(Adapter const &o)
 	{
 		idLow = o.idLow;
@@ -48,13 +55,19 @@ struct Adapter {
 		Name = o.Name;
 	}
 
-	friend bool operator<(const Plugin::API::Adapter &left, const Plugin::API::Adapter &right);
-	friend bool operator>(const Plugin::API::Adapter &left, const Plugin::API::Adapter &right);
-	friend bool operator<=(const Plugin::API::Adapter &left, const Plugin::API::Adapter &right);
-	friend bool operator>=(const Plugin::API::Adapter &left, const Plugin::API::Adapter &right);
+	friend bool operator<(const Plugin::API::Adapter &left,
+			      const Plugin::API::Adapter &right);
+	friend bool operator>(const Plugin::API::Adapter &left,
+			      const Plugin::API::Adapter &right);
+	friend bool operator<=(const Plugin::API::Adapter &left,
+			       const Plugin::API::Adapter &right);
+	friend bool operator>=(const Plugin::API::Adapter &left,
+			       const Plugin::API::Adapter &right);
 
-	friend bool operator==(const Plugin::API::Adapter &left, const Plugin::API::Adapter &right);
-	friend bool operator!=(const Plugin::API::Adapter &left, const Plugin::API::Adapter &right);
+	friend bool operator==(const Plugin::API::Adapter &left,
+			       const Plugin::API::Adapter &right);
+	friend bool operator!=(const Plugin::API::Adapter &left,
+			       const Plugin::API::Adapter &right);
 };
 
 // Instance of an API Adapter

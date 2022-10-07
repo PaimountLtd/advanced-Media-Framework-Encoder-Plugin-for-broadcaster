@@ -167,8 +167,11 @@ enum class SliceControlMode : uint8_t {
 
 class Encoder {
 protected:
-	Encoder(Codec codec, std::shared_ptr<API::IAPI> videoAPI, const API::Adapter &videoAdapter, bool useOpenCLSubmission, bool useOpenCLConversion, ColorFormat colorFormat,
-		ColorSpace colorSpace, bool fullRangeColor, bool multiThreaded, size_t queueSize);
+	Encoder(Codec codec, std::shared_ptr<API::IAPI> videoAPI,
+		const API::Adapter &videoAdapter, bool useOpenCLSubmission,
+		bool useOpenCLConversion, ColorFormat colorFormat,
+		ColorSpace colorSpace, bool fullRangeColor, bool multiThreaded,
+		size_t queueSize);
 
 public:
 	virtual ~Encoder();
@@ -221,7 +224,9 @@ public:
 
 #ifndef LITE_OBS
 #pragma region Frame
-	virtual std::pair<std::pair<uint32_t, uint32_t>, std::pair<uint32_t, uint32_t>> CapsResolution() = 0;
+	virtual std::pair<std::pair<uint32_t, uint32_t>,
+			  std::pair<uint32_t, uint32_t>>
+	CapsResolution() = 0;
 	virtual void SetResolution(std::pair<uint32_t, uint32_t> v) = 0;
 	virtual std::pair<uint32_t, uint32_t> GetResolution() = 0;
 
@@ -239,7 +244,9 @@ public:
 
 	virtual std::vector<ProfileLevel> CapsProfileLevel() = 0;
 	virtual void SetProfileLevel(ProfileLevel v) = 0;
-	virtual void SetProfileLevel(ProfileLevel v, std::pair<uint32_t, uint32_t> r, std::pair<uint32_t, uint32_t> h) = 0;
+	virtual void SetProfileLevel(ProfileLevel v,
+				     std::pair<uint32_t, uint32_t> r,
+				     std::pair<uint32_t, uint32_t> h) = 0;
 	virtual ProfileLevel GetProfileLevel() = 0;
 #pragma endregion Profile
 
@@ -252,7 +259,8 @@ public:
 	virtual void SetMaximumReferenceFrames(uint64_t v) = 0;
 	virtual uint64_t GetMaximumReferenceFrames() = 0;
 
-	virtual std::pair<uint32_t, uint32_t> CapsMaximumLongTermReferenceFrames() = 0;
+	virtual std::pair<uint32_t, uint32_t>
+	CapsMaximumLongTermReferenceFrames() = 0;
 	virtual void SetMaximumLongTermReferenceFrames(uint32_t v) = 0;
 	virtual uint32_t GetMaximumLongTermReferenceFrames() = 0;
 #pragma endregion Reference Frames
@@ -360,15 +368,21 @@ protected:
 	void UpdateFrameRateValues();
 
 private:
-	virtual void PacketPriorityAndKeyframe(amf::AMFDataPtr &d, struct encoder_packet *p) = 0;
+	virtual void PacketPriorityAndKeyframe(amf::AMFDataPtr &d,
+					       struct encoder_packet *p) = 0;
 	virtual AMF_RESULT GetExtraDataInternal(amf::AMFVariant *p) = 0;
-	virtual std::string HandleTypeOverride(amf::AMFSurfacePtr &d, uint64_t index) = 0;
+	virtual std::string HandleTypeOverride(amf::AMFSurfacePtr &d,
+					       uint64_t index) = 0;
 
 	bool EncodeAllocate(OUT amf::AMFSurfacePtr &surface);
-	bool EncodeStore(OUT amf::AMFSurfacePtr &surface, IN struct encoder_frame *frame);
-	bool EncodeConvert(IN amf::AMFSurfacePtr &surface, OUT amf::AMFDataPtr &data);
+	bool EncodeStore(OUT amf::AMFSurfacePtr &surface,
+			 IN struct encoder_frame *frame);
+	bool EncodeConvert(IN amf::AMFSurfacePtr &surface,
+			   OUT amf::AMFDataPtr &data);
 	bool EncodeMain(IN amf::AMFDataPtr &data, OUT amf::AMFDataPtr &packet);
-	bool EncodeLoad(IN amf::AMFDataPtr &data, OUT struct encoder_packet *packet, OUT bool *received_packet);
+	bool EncodeLoad(IN amf::AMFDataPtr &data,
+			OUT struct encoder_packet *packet,
+			OUT bool *received_packet);
 
 	static int32_t AsyncSendMain(Encoder *obj);
 	int32_t AsyncSendLocalMain();

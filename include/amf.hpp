@@ -37,7 +37,10 @@ namespace AMD {
 
 class AMFException : public std::exception {
 public:
-	AMFException(const char *what, int code) : std::exception(what), code(code) {}
+	AMFException(const char *what, int code)
+		: std::exception(what), code(code)
+	{
+	}
 	int Code() const { return code; }
 	int Code() { return code; }
 

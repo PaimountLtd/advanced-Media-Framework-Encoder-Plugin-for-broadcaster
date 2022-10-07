@@ -1,4 +1,4 @@
-// 
+//
 // Notice Regarding Standards.  AMD does not provide a license or sublicense to
 // any Intellectual Property Rights relating to any standards, including but not
 // limited to any audio and/or video codec technologies such as MPEG-2, MPEG-4;
@@ -6,9 +6,9 @@
 // (collectively, the "Media Technologies"). For clarity, you will pay any
 // royalties due for such third party technologies, which may include the Media
 // Technologies that are owed as a result of AMD providing the Software to you.
-// 
-// MIT license 
-// 
+//
+// MIT license
+//
 // Copyright (c) 2018 Advanced Micro Devices, Inc. All rights reserved.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -38,39 +38,36 @@
 #include "Result.h"
 
 #if defined(__cplusplus)
-namespace amf
-{
+namespace amf {
 #endif
-    //----------------------------------------------------------------------------------------------
-    // AMFDebug interface - singleton
-    //----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
+// AMFDebug interface - singleton
+//----------------------------------------------------------------------------------------------
 #if defined(__cplusplus)
-    class AMF_NO_VTABLE AMFDebug
-    {
-    public:
-        virtual  void               AMF_STD_CALL EnablePerformanceMonitor(amf_bool enable) = 0;
-        virtual  amf_bool           AMF_STD_CALL PerformanceMonitorEnabled() = 0;
-        virtual  void               AMF_STD_CALL AssertsEnable(amf_bool enable) = 0;
-        virtual  amf_bool           AMF_STD_CALL AssertsEnabled() = 0;
-    };
+class AMF_NO_VTABLE AMFDebug {
+public:
+	virtual void AMF_STD_CALL EnablePerformanceMonitor(amf_bool enable) = 0;
+	virtual amf_bool AMF_STD_CALL PerformanceMonitorEnabled() = 0;
+	virtual void AMF_STD_CALL AssertsEnable(amf_bool enable) = 0;
+	virtual amf_bool AMF_STD_CALL AssertsEnabled() = 0;
+};
 #else // #if defined(__cplusplus)
-    typedef struct AMFDebug AMFDebug;
-    typedef struct AMFDebugVtbl
-    {
-        // AMFDebug interface
-        void               (AMF_STD_CALL *EnablePerformanceMonitor)(AMFDebug* pThis, amf_bool enable);
-        amf_bool           (AMF_STD_CALL *PerformanceMonitorEnabled)(AMFDebug* pThis);
-        void               (AMF_STD_CALL *AssertsEnable)(AMFDebug* pThis, amf_bool enable);
-        amf_bool           (AMF_STD_CALL *AssertsEnabled)(AMFDebug* pThis);
-    } AMFDebugVtbl;
+typedef struct AMFDebug AMFDebug;
+typedef struct AMFDebugVtbl {
+	// AMFDebug interface
+	void(AMF_STD_CALL *EnablePerformanceMonitor)(AMFDebug *pThis,
+						     amf_bool enable);
+	amf_bool(AMF_STD_CALL *PerformanceMonitorEnabled)(AMFDebug *pThis);
+	void(AMF_STD_CALL *AssertsEnable)(AMFDebug *pThis, amf_bool enable);
+	amf_bool(AMF_STD_CALL *AssertsEnabled)(AMFDebug *pThis);
+} AMFDebugVtbl;
 
-    struct AMFDebug
-    {
-        const AMFDebugVtbl *pVtbl;
-    };
+struct AMFDebug {
+	const AMFDebugVtbl *pVtbl;
+};
 
 #endif // #if defined(__cplusplus)
-    //----------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------
 #if defined(__cplusplus)
 }
 #endif

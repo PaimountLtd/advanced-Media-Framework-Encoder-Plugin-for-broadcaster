@@ -30,14 +30,21 @@ public:
 	static void get_defaults(obs_data_t *settings) noexcept;
 	static obs_properties_t *get_properties(void *data) noexcept;
 
-	static bool properties_modified(obs_properties_t *props, obs_property_t *, obs_data_t *data) noexcept;
+	static bool properties_modified(obs_properties_t *props,
+					obs_property_t *,
+					obs_data_t *data) noexcept;
 
-	static void *create(obs_data_t *settings, obs_encoder_t *encoder) noexcept;
+	static void *create(obs_data_t *settings,
+			    obs_encoder_t *encoder) noexcept;
 	static void destroy(void *data) noexcept;
 	static bool update(void *data, obs_data_t *settings) noexcept;
-	static bool encode(void *data, struct encoder_frame *frame, struct encoder_packet *packet, bool *received_packet) noexcept;
-	static void get_video_info(void *data, struct video_scale_info *info) noexcept;
-	static bool get_extra_data(void *data, uint8_t **extra_data, size_t *size) noexcept;
+	static bool encode(void *data, struct encoder_frame *frame,
+			   struct encoder_packet *packet,
+			   bool *received_packet) noexcept;
+	static void get_video_info(void *data,
+				   struct video_scale_info *info) noexcept;
+	static bool get_extra_data(void *data, uint8_t **extra_data,
+				   size_t *size) noexcept;
 
 	//////////////////////////////////////////////////////////////////////////
 	// Module Code
@@ -47,7 +54,8 @@ public:
 	~H264Interface();
 
 	bool update(obs_data_t *settings);
-	bool encode(struct encoder_frame *frame, struct encoder_packet *packet, bool *received_packet);
+	bool encode(struct encoder_frame *frame, struct encoder_packet *packet,
+		    bool *received_packet);
 	void get_video_info(struct video_scale_info *info);
 	bool get_extra_data(uint8_t **extra_data, size_t *size);
 

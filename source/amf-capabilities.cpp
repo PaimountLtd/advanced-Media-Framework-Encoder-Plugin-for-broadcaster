@@ -56,7 +56,8 @@ Plugin::AMD::CapabilityManager::CapabilityManager()
 
 	// Key order: API, Adapter, Codec
 	for (auto api : API::EnumerateAPIs()) {
-		PLOG_DEBUG("[Capability Manager] Testing %s API...", api->GetName().c_str());
+		PLOG_DEBUG("[Capability Manager] Testing %s API...",
+			   api->GetName().c_str());
 		for (auto adapter : api->EnumerateAdapters()) {
 			std::pair<Codec, bool> test_codecs[] = {
 				std::make_pair(Codec::AVC, false),
@@ -67,10 +68,15 @@ Plugin::AMD::CapabilityManager::CapabilityManager()
 				try {
 					std::unique_ptr<AMD::Encoder> enc;
 
-					if (codec.first == Codec::AVC || codec.first == Codec::SVC) {
-						enc = std::make_unique<AMD::EncoderH264>(api, adapter);
+					if (codec.first == Codec::AVC ||
+					    codec.first == Codec::SVC) {
+						enc = std::make_unique<
+							AMD::EncoderH264>(
+							api, adapter);
 					} else if (codec.first == Codec::HEVC) {
-						enc = std::make_unique<AMD::EncoderH265>(api, adapter);
+						enc = std::make_unique<
+							AMD::EncoderH265>(
+							api, adapter);
 					}
 
 					if (enc != nullptr) {
@@ -78,28 +84,47 @@ Plugin::AMD::CapabilityManager::CapabilityManager()
 					}
 				} catch (const AMFException &amf_ex) {
 					(void)amf_ex; // Avoid invalid warning about unreferenced variable
-					PLOG_DEBUG("[Capability Manager] Testing %s Adapter '%s' with codec %s failed, reason: %s. Aborting", api->GetName().c_str(),
-						   adapter.Name.c_str(), Utility::CodecToString(codec.first), amf_ex.what(), amf_ex.Code());
+					PLOG_DEBUG(
+						"[Capability Manager] Testing %s Adapter '%s' with codec %s failed, reason: %s. Aborting",
+						api->GetName().c_str(),
+						adapter.Name.c_str(),
+						Utility::CodecToString(
+							codec.first),
+						amf_ex.what(), amf_ex.Code());
 				}
 
 				catch (const std::exception &e) {
-					PLOG_DEBUG("[Capability Manager] Testing %s Adapter '%s' with codec %s failed, reason: %s", api->GetName().c_str(), adapter.Name.c_str(),
-						   Utility::CodecToString(codec.first), e.what());
+					PLOG_DEBUG(
+						"[Capability Manager] Testing %s Adapter '%s' with codec %s failed, reason: %s",
+						api->GetName().c_str(),
+						adapter.Name.c_str(),
+						Utility::CodecToString(
+							codec.first),
+						e.what());
 
 #ifdef LITE_OBS
 					e;
 #endif
 				}
 
-				std::tuple<API::Type, API::Adapter, AMD::Codec> key = std::make_tuple(api->GetType(), adapter, codec.first);
+				std::tuple<API::Type, API::Adapter, AMD::Codec>
+					key = std::make_tuple(api->GetType(),
+							      adapter,
+							      codec.first);
 				m_CapabilityMap[key] = codec.second;
 			}
 
-			PLOG_INFO("[Capability Manager] Testing %s Adapter '%s':\n"
-				  "  %s: %s\n"
-				  "  %s: %s\n",
-				  api->GetName().c_str(), adapter.Name.c_str(), Utility::CodecToString(test_codecs[0].first), test_codecs[0].second ? "Supported" : "Not Supported",
-				  Utility::CodecToString(test_codecs[1].first), test_codecs[1].second ? "Supported" : "Not Supported");
+			PLOG_INFO(
+				"[Capability Manager] Testing %s Adapter '%s':\n"
+				"  %s: %s\n"
+				"  %s: %s\n",
+				api->GetName().c_str(), adapter.Name.c_str(),
+				Utility::CodecToString(test_codecs[0].first),
+				test_codecs[0].second ? "Supported"
+						      : "Not Supported",
+				Utility::CodecToString(test_codecs[1].first),
+				test_codecs[1].second ? "Supported"
+						      : "Not Supported");
 		}
 	}
 }
@@ -115,7 +140,8 @@ bool Plugin::AMD::CapabilityManager::IsCodecSupported(AMD::Codec codec)
 	return false;
 }
 
-bool Plugin::AMD::CapabilityManager::IsCodecSupportedByAPI(AMD::Codec codec, API::Type type)
+bool Plugin::AMD::CapabilityManager::IsCodecSupportedByAPI(AMD::Codec codec,
+							   API::Type type)
 {
 	auto api = API::GetAPI(type);
 	for (auto adapter : api->EnumerateAdapters()) {
@@ -125,7 +151,8 @@ bool Plugin::AMD::CapabilityManager::IsCodecSupportedByAPI(AMD::Codec codec, API
 	return false;
 }
 
-bool Plugin::AMD::CapabilityManager::IsCodecSupportedByAPIAdapter(AMD::Codec codec, API::Type api, API::Adapter adapter)
+bool Plugin::AMD::CapabilityManager::IsCodecSupportedByAPIAdapter(
+	AMD::Codec codec, API::Type api, API::Adapter adapter)
 {
 	return m_CapabilityMap[std::make_tuple(api, adapter, codec)];
 }

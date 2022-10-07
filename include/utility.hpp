@@ -39,7 +39,8 @@ const char *obs_module_text_multi(const char *val, uint8_t depth = (uint8_t)1);
 
 #ifndef LITE_OBS
 void fill_api_list(obs_property_t *property, Plugin::AMD::Codec codec);
-void fill_device_list(obs_property_t *property, std::string api_name, Plugin::AMD::Codec codec);
+void fill_device_list(obs_property_t *property, std::string api_name,
+		      Plugin::AMD::Codec codec);
 #endif
 
 // Codec
@@ -52,8 +53,10 @@ amf::AMF_SURFACE_FORMAT ColorFormatToAMF(Plugin::AMD::ColorFormat v);
 
 // Color Space
 const char *ColorSpaceToString(Plugin::AMD::ColorSpace v);
-AMF_VIDEO_CONVERTER_COLOR_PROFILE_ENUM ColorSpaceToAMFConverter(Plugin::AMD::ColorSpace v);
-AMF_COLOR_TRANSFER_CHARACTERISTIC_ENUM ColorSpaceToTransferCharacteristic(Plugin::AMD::ColorSpace v);
+AMF_VIDEO_CONVERTER_COLOR_PROFILE_ENUM
+ColorSpaceToAMFConverter(Plugin::AMD::ColorSpace v);
+AMF_COLOR_TRANSFER_CHARACTERISTIC_ENUM
+ColorSpaceToTransferCharacteristic(Plugin::AMD::ColorSpace v);
 
 // Usage
 const char *UsageToString(Plugin::AMD::Usage v);
@@ -64,10 +67,14 @@ Plugin::AMD::Usage UsageFromAMFH265(AMF_VIDEO_ENCODER_HEVC_USAGE_ENUM v);
 
 // Quality Preset
 const char *QualityPresetToString(Plugin::AMD::QualityPreset v);
-AMF_VIDEO_ENCODER_QUALITY_PRESET_ENUM QualityPresetToAMFH264(Plugin::AMD::QualityPreset v);
-Plugin::AMD::QualityPreset QualityPresetFromAMFH264(AMF_VIDEO_ENCODER_QUALITY_PRESET_ENUM v);
-AMF_VIDEO_ENCODER_HEVC_QUALITY_PRESET_ENUM QualityPresetToAMFH265(Plugin::AMD::QualityPreset v);
-Plugin::AMD::QualityPreset QualityPresetFromAMFH265(AMF_VIDEO_ENCODER_HEVC_QUALITY_PRESET_ENUM v);
+AMF_VIDEO_ENCODER_QUALITY_PRESET_ENUM
+QualityPresetToAMFH264(Plugin::AMD::QualityPreset v);
+Plugin::AMD::QualityPreset
+QualityPresetFromAMFH264(AMF_VIDEO_ENCODER_QUALITY_PRESET_ENUM v);
+AMF_VIDEO_ENCODER_HEVC_QUALITY_PRESET_ENUM
+QualityPresetToAMFH265(Plugin::AMD::QualityPreset v);
+Plugin::AMD::QualityPreset
+QualityPresetFromAMFH265(AMF_VIDEO_ENCODER_HEVC_QUALITY_PRESET_ENUM v);
 
 // Profile
 const char *ProfileToString(Plugin::AMD::Profile v);
@@ -90,15 +97,21 @@ Plugin::AMD::CodingType CodingTypeFromAMFH265(int64_t v);
 
 // Rate Control Method
 const char *RateControlMethodToString(Plugin::AMD::RateControlMethod v);
-AMF_VIDEO_ENCODER_RATE_CONTROL_METHOD_ENUM RateControlMethodToAMFH264(Plugin::AMD::RateControlMethod v);
-Plugin::AMD::RateControlMethod RateControlMethodFromAMFH264(AMF_VIDEO_ENCODER_RATE_CONTROL_METHOD_ENUM v);
-AMF_VIDEO_ENCODER_HEVC_RATE_CONTROL_METHOD_ENUM RateControlMethodToAMFH265(Plugin::AMD::RateControlMethod v);
-Plugin::AMD::RateControlMethod RateControlMethodFromAMFH265(AMF_VIDEO_ENCODER_HEVC_RATE_CONTROL_METHOD_ENUM v);
+AMF_VIDEO_ENCODER_RATE_CONTROL_METHOD_ENUM
+RateControlMethodToAMFH264(Plugin::AMD::RateControlMethod v);
+Plugin::AMD::RateControlMethod
+RateControlMethodFromAMFH264(AMF_VIDEO_ENCODER_RATE_CONTROL_METHOD_ENUM v);
+AMF_VIDEO_ENCODER_HEVC_RATE_CONTROL_METHOD_ENUM
+RateControlMethodToAMFH265(Plugin::AMD::RateControlMethod v);
+Plugin::AMD::RateControlMethod
+RateControlMethodFromAMFH265(AMF_VIDEO_ENCODER_HEVC_RATE_CONTROL_METHOD_ENUM v);
 
 // Pre-Pass Method
 const char *PrePassModeToString(Plugin::AMD::PrePassMode v);
-AMF_VIDEO_ENCODER_PREENCODE_MODE_ENUM PrePassModeToAMFH264(Plugin::AMD::PrePassMode v);
-Plugin::AMD::PrePassMode PrePassModeFromAMFH264(AMF_VIDEO_ENCODER_PREENCODE_MODE_ENUM v);
+AMF_VIDEO_ENCODER_PREENCODE_MODE_ENUM
+PrePassModeToAMFH264(Plugin::AMD::PrePassMode v);
+Plugin::AMD::PrePassMode
+PrePassModeFromAMFH264(AMF_VIDEO_ENCODER_PREENCODE_MODE_ENUM v);
 
 // GOP Type
 const char *GOPTypeToString(Plugin::AMD::H265::GOPType v);
@@ -109,8 +122,12 @@ int64_t GOPTypeToAMFH265(Plugin::AMD::H265::GOPType v);
 const char *SliceModeToString(Plugin::AMD::H264::SliceMode v);
 const char *SliceControlModeToString(Plugin::AMD::SliceControlMode v);
 
-Plugin::AMD::ProfileLevel H264ProfileLevel(std::pair<uint32_t, uint32_t> resolution, std::pair<uint32_t, uint32_t> frameRate);
-Plugin::AMD::ProfileLevel H265ProfileLevel(std::pair<uint32_t, uint32_t> resolution, std::pair<uint32_t, uint32_t> frameRate);
+Plugin::AMD::ProfileLevel
+H264ProfileLevel(std::pair<uint32_t, uint32_t> resolution,
+		 std::pair<uint32_t, uint32_t> frameRate);
+Plugin::AMD::ProfileLevel
+H265ProfileLevel(std::pair<uint32_t, uint32_t> resolution,
+		 std::pair<uint32_t, uint32_t> frameRate);
 
 //////////////////////////////////////////////////////////////////////////
 // Threading Specific

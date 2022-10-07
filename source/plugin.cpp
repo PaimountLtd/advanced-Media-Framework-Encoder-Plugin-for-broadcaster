@@ -47,7 +47,8 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD, LPVOID)
 	return TRUE;
 }
 
-static inline bool create_process(const char *cmd_line, HANDLE stdout_handle, HANDLE *process)
+static inline bool create_process(const char *cmd_line, HANDLE stdout_handle,
+				  HANDLE *process)
 {
 	PROCESS_INFORMATION pi = {0};
 	wchar_t *cmd_line_w = NULL;
@@ -62,7 +63,9 @@ static inline bool create_process(const char *cmd_line, HANDLE stdout_handle, HA
 
 	os_utf8_to_wcs_ptr(cmd_line, 0, &cmd_line_w);
 	if (cmd_line_w) {
-		success = !!CreateProcessW(NULL, cmd_line_w, NULL, NULL, true, CREATE_NO_WINDOW, NULL, NULL, &si, &pi);
+		success = !!CreateProcessW(NULL, cmd_line_w, NULL, NULL, true,
+					   CREATE_NO_WINDOW, NULL, NULL, &si,
+					   &pi);
 
 		if (success) {
 			*process = pi.hProcess;
@@ -104,17 +107,22 @@ MODULE_EXPORT bool obs_module_load(void)
 		{
 			unsigned long returnCode = 0xFFFFFFFF;
 			HANDLE hProcess, hRead, hReadImp, hOut;
-			char *path = obs_module_file("enc-amf-test" BIT_STR ".exe");
+			char *path =
+				obs_module_file("enc-amf-test" BIT_STR ".exe");
 
 			if (!create_pipe(&hReadImp, &hOut)) {
-				PLOG_ERROR("Failed to create pipes for AMF test.");
+				PLOG_ERROR(
+					"Failed to create pipes for AMF test.");
 				bfree(path);
 				return false;
 			}
-			if (!DuplicateHandle(GetCurrentProcess(), hReadImp, GetCurrentProcess(), &hRead, 0, FALSE, DUPLICATE_SAME_ACCESS)) {
+			if (!DuplicateHandle(GetCurrentProcess(), hReadImp,
+					     GetCurrentProcess(), &hRead, 0,
+					     FALSE, DUPLICATE_SAME_ACCESS)) {
 				CloseHandle(hReadImp);
 				CloseHandle(hOut);
-				PLOG_ERROR("Failed to modify pipes for AMF test.");
+				PLOG_ERROR(
+					"Failed to modify pipes for AMF test.");
 				bfree(path);
 				return false;
 			};
@@ -122,7 +130,8 @@ MODULE_EXPORT bool obs_module_load(void)
 			if (!create_process(path, hOut, &hProcess)) {
 				CloseHandle(hRead);
 				CloseHandle(hOut);
-				PLOG_ERROR("Failed to start AMF test subprocess.");
+				PLOG_ERROR(
+					"Failed to start AMF test subprocess.");
 				bfree(path);
 				return false;
 			}
@@ -132,11 +141,13 @@ MODULE_EXPORT bool obs_module_load(void)
 
 			char buf[1024];
 			DWORD bufread = 0;
-			while (ReadFile(hRead, buf, sizeof(buf), &bufread, NULL)) {
+			while (ReadFile(hRead, buf, sizeof(buf), &bufread,
+					NULL)) {
 				blog(LOG_ERROR, "%.*s", bufread, buf);
 			}
 
-			if (WaitForSingleObject(hProcess, 2000) == WAIT_OBJECT_0)
+			if (WaitForSingleObject(hProcess, 2000) ==
+			    WAIT_OBJECT_0)
 				GetExitCodeProcess(hProcess, &returnCode);
 
 			CloseHandle(hProcess);
@@ -170,11 +181,13 @@ MODULE_EXPORT bool obs_module_load(void)
 			case STATUS_STACK_OVERFLOW:
 			case STATUS_UNWIND_CONSOLIDATE:
 			default:
-				PLOG_ERROR("A critical error occurred during AMF Testing.");
+				PLOG_ERROR(
+					"A critical error occurred during AMF Testing.");
 				return false;
 			case 2:
 			case 1:
-				PLOG_ERROR("AMF Test failed due to one or more errors.");
+				PLOG_ERROR(
+					"AMF Test failed due to one or more errors.");
 				return false;
 			case 0:
 				break;
@@ -198,7 +211,8 @@ MODULE_EXPORT bool obs_module_load(void)
 		PLOG_DEBUG("<%s> Loaded.", __FUNCTION_NAME__);
 		return true;
 	} catch (const AMFException &amf_ex) {
-		PLOG_ERROR("Failed to load AMF due to error: %s, code ", amf_ex.what(), amf_ex.Code());
+		PLOG_ERROR("Failed to load AMF due to error: %s, code ",
+			   amf_ex.what(), amf_ex.Code());
 	} catch (const std::exception &ex) {
 		PLOG_ERROR("Failed to load due to error: %s", ex.what());
 	} catch (...) {
@@ -217,7 +231,8 @@ MODULE_EXPORT void obs_module_unload(void)
 	} catch (const std::exception &ex) {
 		PLOG_ERROR("Failed to unload due to error: %s", ex.what());
 	} catch (...) {
-		PLOG_ERROR("An unexpected unknown exception was thrown during unloading. Please report this as a bug.");
+		PLOG_ERROR(
+			"An unexpected unknown exception was thrown during unloading. Please report this as a bug.");
 	}
 }
 

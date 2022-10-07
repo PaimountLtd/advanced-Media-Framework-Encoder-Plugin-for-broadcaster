@@ -38,7 +38,8 @@ public:
 	virtual std::string GetName() override;
 	virtual Type GetType() override;
 	virtual std::vector<Adapter> EnumerateAdapters() override;
-	virtual std::shared_ptr<Instance> CreateInstance(Adapter adapter) override;
+	virtual std::shared_ptr<Instance>
+	CreateInstance(Adapter adapter) override;
 
 protected:
 	ATL::CComPtr<IDXGIFactory1> m_DXGIFactory;

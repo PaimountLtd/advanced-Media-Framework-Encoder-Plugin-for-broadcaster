@@ -34,8 +34,13 @@ enum class SliceMode : uint8_t {
 
 class EncoderH264 : public Encoder {
 public:
-	EncoderH264(std::shared_ptr<API::IAPI> videoAPI, const API::Adapter &videoAdapter, bool useOpenCLSubmission = false, bool useOpenCLConversion = false,
-		    ColorFormat colorFormat = ColorFormat::NV12, ColorSpace colorSpace = ColorSpace::BT709, bool fullRangeColor = false, bool useAsyncQueue = false,
+	EncoderH264(std::shared_ptr<API::IAPI> videoAPI,
+		    const API::Adapter &videoAdapter,
+		    bool useOpenCLSubmission = false,
+		    bool useOpenCLConversion = false,
+		    ColorFormat colorFormat = ColorFormat::NV12,
+		    ColorSpace colorSpace = ColorSpace::BT709,
+		    bool fullRangeColor = false, bool useAsyncQueue = false,
 		    size_t asyncQueueSize = 0);
 	virtual ~EncoderH264();
 
@@ -56,14 +61,19 @@ public:
 
 	virtual std::vector<ProfileLevel> CapsProfileLevel() override;
 	virtual void SetProfileLevel(ProfileLevel v) override;
-	virtual void SetProfileLevel(ProfileLevel v, std::pair<uint32_t, uint32_t> r, std::pair<uint32_t, uint32_t> h) override;
+	virtual void SetProfileLevel(ProfileLevel v,
+				     std::pair<uint32_t, uint32_t> r,
+				     std::pair<uint32_t, uint32_t> h) override;
 	virtual ProfileLevel GetProfileLevel() override;
 
-	virtual std::pair<uint64_t, uint64_t> CapsMaximumReferenceFrames() override;
+	virtual std::pair<uint64_t, uint64_t>
+	CapsMaximumReferenceFrames() override;
 	virtual void SetMaximumReferenceFrames(uint64_t v) override;
 	virtual uint64_t GetMaximumReferenceFrames() override;
 
-	virtual std::pair<std::pair<uint32_t, uint32_t>, std::pair<uint32_t, uint32_t>> CapsResolution() override;
+	virtual std::pair<std::pair<uint32_t, uint32_t>,
+			  std::pair<uint32_t, uint32_t>>
+	CapsResolution() override;
 	virtual void SetResolution(std::pair<uint32_t, uint32_t> v) override;
 	virtual std::pair<uint32_t, uint32_t> GetResolution() override;
 
@@ -77,7 +87,8 @@ public:
 	virtual void SetCodingType(CodingType v) override;
 	virtual CodingType GetCodingType() override;
 
-	virtual std::pair<uint32_t, uint32_t> CapsMaximumLongTermReferenceFrames() override;
+	virtual std::pair<uint32_t, uint32_t>
+	CapsMaximumLongTermReferenceFrames() override;
 	virtual void SetMaximumLongTermReferenceFrames(uint32_t v) override;
 	virtual uint32_t GetMaximumLongTermReferenceFrames() override;
 
@@ -93,7 +104,8 @@ public:
 	virtual void SetPrePassMode(PrePassMode v) override;
 	virtual PrePassMode GetPrePassMode() override;
 
-	virtual void SetVarianceBasedAdaptiveQuantizationEnabled(bool v) override;
+	virtual void
+	SetVarianceBasedAdaptiveQuantizationEnabled(bool v) override;
 	virtual bool IsVarianceBasedAdaptiveQuantizationEnabled() override;
 
 	virtual void SetFrameSkippingEnabled(bool v) override;
@@ -188,11 +200,15 @@ public:
 	virtual void LogProperties() override;
 
 protected:
-	virtual void PacketPriorityAndKeyframe(amf::AMFDataPtr &d, struct encoder_packet *p) override;
+	virtual void
+	PacketPriorityAndKeyframe(amf::AMFDataPtr &d,
+				  struct encoder_packet *p) override;
 	virtual AMF_RESULT GetExtraDataInternal(amf::AMFVariant *p) override;
-	virtual std::string HandleTypeOverride(amf::AMFSurfacePtr &d, uint64_t index) override;
+	virtual std::string HandleTypeOverride(amf::AMFSurfacePtr &d,
+					       uint64_t index) override;
 
-	AMF_VIDEO_ENCODER_PICTURE_TYPE_ENUM m_FrameSkipType = AMF_VIDEO_ENCODER_PICTURE_TYPE_NONE;
+	AMF_VIDEO_ENCODER_PICTURE_TYPE_ENUM m_FrameSkipType =
+		AMF_VIDEO_ENCODER_PICTURE_TYPE_NONE;
 #endif
 };
 } // namespace AMD

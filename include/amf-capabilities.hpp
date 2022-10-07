@@ -52,10 +52,12 @@ public: // Remove all Copy operators
 
 	bool IsCodecSupported(AMD::Codec codec);
 	bool IsCodecSupportedByAPI(AMD::Codec codec, API::Type api);
-	bool IsCodecSupportedByAPIAdapter(AMD::Codec codec, API::Type api, API::Adapter adapter);
+	bool IsCodecSupportedByAPIAdapter(AMD::Codec codec, API::Type api,
+					  API::Adapter adapter);
 
 private:
-	std::map<std::tuple<API::Type, API::Adapter, AMD::Codec>, bool> m_CapabilityMap;
+	std::map<std::tuple<API::Type, API::Adapter, AMD::Codec>, bool>
+		m_CapabilityMap;
 };
 } // namespace AMD
 } // namespace Plugin
