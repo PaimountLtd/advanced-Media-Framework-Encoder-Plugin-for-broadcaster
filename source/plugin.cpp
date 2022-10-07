@@ -47,18 +47,18 @@ BOOL WINAPI DllMain(HINSTANCE, DWORD, LPVOID)
 	return TRUE;
 }
 
-static inline bool create_process(const char* cmd_line, HANDLE stdout_handle, HANDLE* process)
+static inline bool create_process(const char *cmd_line, HANDLE stdout_handle, HANDLE *process)
 {
-	PROCESS_INFORMATION pi         = {0};
-	wchar_t*            cmd_line_w = NULL;
-	STARTUPINFOW        si         = {0};
-	bool                success    = false;
+	PROCESS_INFORMATION pi = {0};
+	wchar_t *cmd_line_w = NULL;
+	STARTUPINFOW si = {0};
+	bool success = false;
 
-	si.cb         = sizeof(si);
-	si.dwFlags    = STARTF_USESTDHANDLES;
-	si.hStdInput  = GetStdHandle(STD_INPUT_HANDLE);
+	si.cb = sizeof(si);
+	si.dwFlags = STARTF_USESTDHANDLES;
+	si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
 	si.hStdOutput = stdout_handle;
-	si.hStdError  = GetStdHandle(STD_ERROR_HANDLE);
+	si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
 
 	os_utf8_to_wcs_ptr(cmd_line, 0, &cmd_line_w);
 	if (cmd_line_w) {
@@ -75,11 +75,11 @@ static inline bool create_process(const char* cmd_line, HANDLE stdout_handle, HA
 	return success;
 }
 
-static bool create_pipe(HANDLE* input, HANDLE* output)
+static bool create_pipe(HANDLE *input, HANDLE *output)
 {
 	SECURITY_ATTRIBUTES sa = {0};
 
-	sa.nLength        = sizeof(sa);
+	sa.nLength = sizeof(sa);
 	sa.bInheritHandle = true;
 
 	if (!CreatePipe(input, output, &sa, 0)) {
@@ -103,16 +103,15 @@ MODULE_EXPORT bool obs_module_load(void)
 		// Out-of-process AMF Test
 		{
 			unsigned long returnCode = 0xFFFFFFFF;
-			HANDLE        hProcess, hRead, hReadImp, hOut;
-			char*         path = obs_module_file("enc-amf-test" BIT_STR ".exe");
+			HANDLE hProcess, hRead, hReadImp, hOut;
+			char *path = obs_module_file("enc-amf-test" BIT_STR ".exe");
 
 			if (!create_pipe(&hReadImp, &hOut)) {
 				PLOG_ERROR("Failed to create pipes for AMF test.");
 				bfree(path);
 				return false;
 			}
-			if (!DuplicateHandle(GetCurrentProcess(), hReadImp, GetCurrentProcess(), &hRead, 0, FALSE,
-								 DUPLICATE_SAME_ACCESS)) {
+			if (!DuplicateHandle(GetCurrentProcess(), hReadImp, GetCurrentProcess(), &hRead, 0, FALSE, DUPLICATE_SAME_ACCESS)) {
 				CloseHandle(hReadImp);
 				CloseHandle(hOut);
 				PLOG_ERROR("Failed to modify pipes for AMF test.");
@@ -131,7 +130,7 @@ MODULE_EXPORT bool obs_module_load(void)
 			CloseHandle(hOut);
 			bfree(path);
 
-			char  buf[1024];
+			char buf[1024];
 			DWORD bufread = 0;
 			while (ReadFile(hRead, buf, sizeof(buf), &bufread, NULL)) {
 				blog(LOG_ERROR, "%.*s", bufread, buf);
@@ -198,10 +197,9 @@ MODULE_EXPORT bool obs_module_load(void)
 
 		PLOG_DEBUG("<%s> Loaded.", __FUNCTION_NAME__);
 		return true;
-	} catch (const AMFException& amf_ex) {
+	} catch (const AMFException &amf_ex) {
 		PLOG_ERROR("Failed to load AMF due to error: %s, code ", amf_ex.what(), amf_ex.Code());
-	}
-	 catch (const std::exception& ex) {
+	} catch (const std::exception &ex) {
 		PLOG_ERROR("Failed to load due to error: %s", ex.what());
 	} catch (...) {
 		PLOG_ERROR("Failed to load with unknown error.");
@@ -216,7 +214,7 @@ MODULE_EXPORT void obs_module_unload(void)
 		Plugin::AMD::CapabilityManager::Finalize();
 		Plugin::API::FinalizeAPIs();
 		Plugin::AMD::AMF::Finalize();
-	} catch (const std::exception& ex) {
+	} catch (const std::exception &ex) {
 		PLOG_ERROR("Failed to unload due to error: %s", ex.what());
 	} catch (...) {
 		PLOG_ERROR("An unexpected unknown exception was thrown during unloading. Please report this as a bug.");
@@ -224,13 +222,13 @@ MODULE_EXPORT void obs_module_unload(void)
 }
 
 /** Optional: Returns the full name of the module */
-MODULE_EXPORT const char* obs_module_name()
+MODULE_EXPORT const char *obs_module_name()
 {
 	return "AMD Advanced Media Framework Plugin";
 }
 
 /** Optional: Returns a description of the module */
-MODULE_EXPORT const char* obs_module_description()
+MODULE_EXPORT const char *obs_module_description()
 {
 	return "AMD Advanced Media Framework Plugin";
 }

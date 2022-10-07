@@ -33,29 +33,29 @@
 #include <components\ComponentCaps.h>
 
 namespace Plugin {
-	namespace AMD {
-		class CapabilityManager {
+namespace AMD {
+class CapabilityManager {
 #pragma region Singleton
-			public:
-			static void               Initialize();
-			static CapabilityManager* Instance();
-			static void               Finalize();
+public:
+	static void Initialize();
+	static CapabilityManager *Instance();
+	static void Finalize();
 
-			private: // Private Initializer & Finalizer
-			CapabilityManager();
-			~CapabilityManager();
+private: // Private Initializer & Finalizer
+	CapabilityManager();
+	~CapabilityManager();
 
-			public: // Remove all Copy operators
-			CapabilityManager(CapabilityManager const&) = delete;
-			void operator=(CapabilityManager const&) = delete;
+public: // Remove all Copy operators
+	CapabilityManager(CapabilityManager const &) = delete;
+	void operator=(CapabilityManager const &) = delete;
 #pragma endregion Singleton
 
-			bool IsCodecSupported(AMD::Codec codec);
-			bool IsCodecSupportedByAPI(AMD::Codec codec, API::Type api);
-			bool IsCodecSupportedByAPIAdapter(AMD::Codec codec, API::Type api, API::Adapter adapter);
+	bool IsCodecSupported(AMD::Codec codec);
+	bool IsCodecSupportedByAPI(AMD::Codec codec, API::Type api);
+	bool IsCodecSupportedByAPIAdapter(AMD::Codec codec, API::Type api, API::Adapter adapter);
 
-			private:
-			std::map<std::tuple<API::Type, API::Adapter, AMD::Codec>, bool> m_CapabilityMap;
-		};
-	} // namespace AMD
+private:
+	std::map<std::tuple<API::Type, API::Adapter, AMD::Codec>, bool> m_CapabilityMap;
+};
+} // namespace AMD
 } // namespace Plugin

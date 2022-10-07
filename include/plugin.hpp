@@ -77,9 +77,9 @@ extern "C" {
 #define BIT_STR "32"
 #endif
 
-#define QUICK_FORMAT_MESSAGE(var, ...)                                                           \
-	std::string var = "";                                                                        \
-	{                                                                                            \
+#define QUICK_FORMAT_MESSAGE(var, ...)                                                                   \
+	std::string var = "";                                                                            \
+	{                                                                                                \
 		std::vector<char> QUICK_FORMAT_MESSAGE_buf(1024);                                        \
 		snprintf(QUICK_FORMAT_MESSAGE_buf.data(), QUICK_FORMAT_MESSAGE_buf.size(), __VA_ARGS__); \
 		var = std::string(QUICK_FORMAT_MESSAGE_buf.data());                                      \
@@ -94,7 +94,7 @@ extern "C" {
 #endif
 
 enum class Presets : int8_t {
-	None            = -1,
+	None = -1,
 	ResetToDefaults = 0,
 	Recording,
 	HighQuality,

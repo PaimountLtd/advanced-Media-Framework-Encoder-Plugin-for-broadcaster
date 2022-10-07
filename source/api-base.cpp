@@ -34,36 +34,35 @@ extern "C" {
 using namespace Plugin::API;
 
 // An Adapter on an API
-bool Plugin::API::operator<(const Plugin::API::Adapter& left, const Plugin::API::Adapter& right)
+bool Plugin::API::operator<(const Plugin::API::Adapter &left, const Plugin::API::Adapter &right)
 {
 	if (left == right)
 		return left.Name < right.Name;
 	else
-		return (((uint64_t)left.idLow + ((uint64_t)left.idHigh << 32))
-				< ((uint64_t)right.idLow + ((uint64_t)right.idHigh << 32)));
+		return (((uint64_t)left.idLow + ((uint64_t)left.idHigh << 32)) < ((uint64_t)right.idLow + ((uint64_t)right.idHigh << 32)));
 }
 
-bool Plugin::API::operator>(const Plugin::API::Adapter& left, const Plugin::API::Adapter& right)
+bool Plugin::API::operator>(const Plugin::API::Adapter &left, const Plugin::API::Adapter &right)
 {
 	return right < left;
 }
 
-bool Plugin::API::operator<=(const Plugin::API::Adapter& left, const Plugin::API::Adapter& right)
+bool Plugin::API::operator<=(const Plugin::API::Adapter &left, const Plugin::API::Adapter &right)
 {
 	return !(right < left);
 }
 
-bool Plugin::API::operator>=(const Plugin::API::Adapter& left, const Plugin::API::Adapter& right)
+bool Plugin::API::operator>=(const Plugin::API::Adapter &left, const Plugin::API::Adapter &right)
 {
 	return !(left < right);
 }
 
-bool Plugin::API::operator==(const Plugin::API::Adapter& left, const Plugin::API::Adapter& right)
+bool Plugin::API::operator==(const Plugin::API::Adapter &left, const Plugin::API::Adapter &right)
 {
 	return ((left.idLow == right.idLow) && (right.idHigh == right.idHigh));
 }
 
-bool Plugin::API::operator!=(const Plugin::API::Adapter& left, const Plugin::API::Adapter& right)
+bool Plugin::API::operator!=(const Plugin::API::Adapter &left, const Plugin::API::Adapter &right)
 {
 	return !(left == right);
 }
@@ -87,7 +86,7 @@ Plugin::API::Adapter Plugin::API::IAPI::GetAdapterById(const int32_t idLow, cons
 	return *(EnumerateAdapters().begin());
 }
 
-Plugin::API::Adapter Plugin::API::IAPI::GetAdapterByName(const std::string& name)
+Plugin::API::Adapter Plugin::API::IAPI::GetAdapterByName(const std::string &name)
 {
 	for (auto adapter : EnumerateAdapters()) {
 		if (adapter.Name == name)
@@ -98,14 +97,14 @@ Plugin::API::Adapter Plugin::API::IAPI::GetAdapterByName(const std::string& name
 
 // Static API Stuff
 static std::vector<std::shared_ptr<IAPI>> s_APIInstances;
-void                                      Plugin::API::InitializeAPIs()
+void Plugin::API::InitializeAPIs()
 {
 #ifdef _WIN32
 	if (IsWindows8OrGreater()) {
 		// DirectX 11
 		try {
 			s_APIInstances.insert(s_APIInstances.end(), std::make_shared<Direct3D11>());
-		} catch (const std::exception& PLOG_VAR(ex)) {
+		} catch (const std::exception &PLOG_VAR(ex)) {
 			PLOG_WARNING("Direct3D 11 is not supported due to error: %s", ex.what());
 		} catch (...) {
 			PLOG_WARNING("Direct3D 11 not supported.");
@@ -114,7 +113,7 @@ void                                      Plugin::API::InitializeAPIs()
 		// Direct3D 9
 		try {
 			s_APIInstances.insert(s_APIInstances.end(), std::make_shared<Direct3D9>());
-		} catch (const std::exception& PLOG_VAR(ex)) {
+		} catch (const std::exception &PLOG_VAR(ex)) {
 			PLOG_WARNING("Direct3D 9 is not supported due to error: %s", ex.what());
 		} catch (...) {
 			PLOG_WARNING("Direct3D 9 not supported.");
@@ -160,7 +159,7 @@ std::shared_ptr<IAPI> Plugin::API::GetAPI(size_t index)
 	return s_APIInstances[index];
 }
 
-std::shared_ptr<IAPI> Plugin::API::GetAPI(const std::string& name)
+std::shared_ptr<IAPI> Plugin::API::GetAPI(const std::string &name)
 {
 	for (auto api : s_APIInstances) {
 		if (name == api->GetName()) {

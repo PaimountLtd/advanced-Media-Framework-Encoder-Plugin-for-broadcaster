@@ -37,26 +37,26 @@ using namespace Plugin::AMD;
 uint64_t Utility::GetUniqueIdentifier()
 {
 	static std::mutex __mutex;
-	static uint64_t   __curId;
+	static uint64_t __curId;
 
 	const std::lock_guard<std::mutex> lock(__mutex);
 	return ++__curId;
 }
 
-const char* Utility::obs_module_text_multi(const char* key, uint8_t depth)
+const char *Utility::obs_module_text_multi(const char *key, uint8_t depth)
 {
 	static std::map<std::string, std::string> translatedMap;
 #ifndef LITE_OBS
 	// Check if it already was translated.
 	if (!translatedMap.count(std::string(key))) { // If not, translate it now.
-		const char* out = obs_module_text(key);
+		const char *out = obs_module_text(key);
 
 		// Allow for nested translations using \@...\@ sequences.
 		if (depth > 0) {
 			// I'm pretty sure this can be optimized a ton if necessary.
 
 			size_t seqStart = 0, seqEnd = 0;
-			bool   haveSequence = false;
+			bool haveSequence = false;
 
 			std::stringstream fout;
 
@@ -76,7 +76,7 @@ const char* Utility::obs_module_text_multi(const char* key, uint8_t depth)
 						seqStart = pos + 2;
 					}
 					haveSequence = !haveSequence;
-					pos          = pos + 1;
+					pos = pos + 1;
 				} else if (!haveSequence) {
 					fout << walked.substr(0, 1); // Append the left character.
 				}
@@ -98,7 +98,7 @@ const char* Utility::obs_module_text_multi(const char* key, uint8_t depth)
 }
 
 #ifndef LITE_OBS
-void Utility::fill_api_list(obs_property_t* property, Plugin::AMD::Codec codec)
+void Utility::fill_api_list(obs_property_t *property, Plugin::AMD::Codec codec)
 {
 	obs_property_list_clear(property);
 
@@ -110,12 +110,12 @@ void Utility::fill_api_list(obs_property_t* property, Plugin::AMD::Codec codec)
 	}
 }
 
-void Utility::fill_device_list(obs_property_t* property, std::string api_name, Plugin::AMD::Codec codec)
+void Utility::fill_device_list(obs_property_t *property, std::string api_name, Plugin::AMD::Codec codec)
 {
 	obs_property_list_clear(property);
 
 	auto api = Plugin::API::GetAPI(api_name);
-	auto cm  = Plugin::AMD::CapabilityManager::Instance();
+	auto cm = Plugin::AMD::CapabilityManager::Instance();
 
 	for (auto adapter : api->EnumerateAdapters()) {
 		union {
@@ -129,7 +129,7 @@ void Utility::fill_device_list(obs_property_t* property, std::string api_name, P
 #endif
 
 // Codec
-const char* Utility::CodecToString(Plugin::AMD::Codec v)
+const char *Utility::CodecToString(Plugin::AMD::Codec v)
 {
 	switch (v) {
 	case Codec::AVC:
@@ -142,7 +142,7 @@ const char* Utility::CodecToString(Plugin::AMD::Codec v)
 	throw std::runtime_error("Invalid Parameter");
 }
 
-const wchar_t* Utility::CodecToAMF(Plugin::AMD::Codec v)
+const wchar_t *Utility::CodecToAMF(Plugin::AMD::Codec v)
 {
 	switch (v) {
 	case Codec::AVC:
@@ -156,7 +156,7 @@ const wchar_t* Utility::CodecToAMF(Plugin::AMD::Codec v)
 }
 
 // Color Format
-const char* Utility::ColorFormatToString(Plugin::AMD::ColorFormat v)
+const char *Utility::ColorFormatToString(Plugin::AMD::ColorFormat v)
 {
 	switch (v) {
 	case ColorFormat::I420:
@@ -195,7 +195,7 @@ amf::AMF_SURFACE_FORMAT Utility::ColorFormatToAMF(Plugin::AMD::ColorFormat v)
 }
 
 // Color Space
-const char* Utility::ColorSpaceToString(Plugin::AMD::ColorSpace v)
+const char *Utility::ColorSpaceToString(Plugin::AMD::ColorSpace v)
 {
 	switch (v) {
 	case ColorSpace::BT601:
@@ -241,7 +241,7 @@ AMF_COLOR_TRANSFER_CHARACTERISTIC_ENUM Utility::ColorSpaceToTransferCharacterist
 }
 
 // Usage
-const char* Utility::UsageToString(Plugin::AMD::Usage v)
+const char *Utility::UsageToString(Plugin::AMD::Usage v)
 {
 	switch (v) {
 	case Usage::Transcoding:
@@ -317,7 +317,7 @@ Plugin::AMD::Usage Utility::UsageFromAMFH265(AMF_VIDEO_ENCODER_HEVC_USAGE_ENUM v
 }
 
 // Quality Preset
-const char* Utility::QualityPresetToString(Plugin::AMD::QualityPreset v)
+const char *Utility::QualityPresetToString(Plugin::AMD::QualityPreset v)
 {
 	switch (v) {
 	case QualityPreset::Speed:
@@ -385,7 +385,7 @@ Plugin::AMD::QualityPreset Utility::QualityPresetFromAMFH265(AMF_VIDEO_ENCODER_H
 }
 
 // Profile
-const char* Utility::ProfileToString(Plugin::AMD::Profile v)
+const char *Utility::ProfileToString(Plugin::AMD::Profile v)
 {
 	switch (v) {
 	case Profile::ConstrainedBaseline:
@@ -457,7 +457,7 @@ Plugin::AMD::Profile Utility::ProfileFromAMFH265(AMF_VIDEO_ENCODER_HEVC_PROFILE_
 }
 
 // Tier
-const char* Utility::TierToString(Plugin::AMD::H265::Tier v)
+const char *Utility::TierToString(Plugin::AMD::H265::Tier v)
 {
 	switch (v) {
 	case H265::Tier::Main:
@@ -492,7 +492,7 @@ Plugin::AMD::H265::Tier Utility::TierFromAMFH265(AMF_VIDEO_ENCODER_HEVC_TIER_ENU
 }
 
 // Coding Type
-const char* Utility::CodingTypeToString(Plugin::AMD::CodingType v)
+const char *Utility::CodingTypeToString(Plugin::AMD::CodingType v)
 {
 	switch (v) {
 	case CodingType::Automatic:
@@ -555,7 +555,7 @@ Plugin::AMD::CodingType Utility::CodingTypeFromAMFH265(int64_t v)
 }
 
 // Rate Control Method
-const char* Utility::RateControlMethodToString(Plugin::AMD::RateControlMethod v)
+const char *Utility::RateControlMethodToString(Plugin::AMD::RateControlMethod v)
 {
 	switch (v) {
 	case RateControlMethod::ConstantQP:
@@ -633,7 +633,7 @@ Plugin::AMD::RateControlMethod Utility::RateControlMethodFromAMFH265(AMF_VIDEO_E
 }
 
 // Pre-Pass Method
-const char* Utility::PrePassModeToString(Plugin::AMD::PrePassMode v)
+const char *Utility::PrePassModeToString(Plugin::AMD::PrePassMode v)
 {
 	switch (v) {
 	case PrePassMode::Disabled:
@@ -679,7 +679,7 @@ Plugin::AMD::PrePassMode Utility::PrePassModeFromAMFH264(AMF_VIDEO_ENCODER_PREEN
 }
 
 // GOP Type
-const char* Utility::GOPTypeToString(Plugin::AMD::H265::GOPType v)
+const char *Utility::GOPTypeToString(Plugin::AMD::H265::GOPType v)
 {
 	switch (v) {
 	case H265::GOPType::Fixed:
@@ -711,7 +711,7 @@ int64_t Utility::GOPTypeToAMFH265(Plugin::AMD::H265::GOPType v)
 }
 
 // Slicing
-const char* Utility::SliceModeToString(Plugin::AMD::H264::SliceMode v)
+const char *Utility::SliceModeToString(Plugin::AMD::H264::SliceMode v)
 {
 	switch (v) {
 	case H264::SliceMode::Row:
@@ -721,7 +721,7 @@ const char* Utility::SliceModeToString(Plugin::AMD::H264::SliceMode v)
 	}
 	throw std::runtime_error("Invalid Parameter");
 }
-const char* Utility::SliceControlModeToString(Plugin::AMD::SliceControlMode v)
+const char *Utility::SliceControlModeToString(Plugin::AMD::SliceControlMode v)
 {
 	switch (v) {
 	case SliceControlMode::Unknown0:
@@ -736,33 +736,23 @@ const char* Utility::SliceControlModeToString(Plugin::AMD::SliceControlMode v)
 	throw std::runtime_error("Invalid Parameter");
 }
 
-Plugin::AMD::ProfileLevel Utility::H264ProfileLevel(std::pair<uint32_t, uint32_t> resolution,
-													std::pair<uint32_t, uint32_t> frameRate)
+Plugin::AMD::ProfileLevel Utility::H264ProfileLevel(std::pair<uint32_t, uint32_t> resolution, std::pair<uint32_t, uint32_t> frameRate)
 {
-	typedef std::pair<uint32_t, uint32_t>             levelRestriction;
+	typedef std::pair<uint32_t, uint32_t> levelRestriction;
 	typedef std::pair<ProfileLevel, levelRestriction> level;
 
-	static const level profileLevelLimit[] = {
-		// [Level, [Samples, Samples_Per_Sec]]
-		level(ProfileLevel::L10, levelRestriction(25344, 380160)),
-		level(ProfileLevel::L11, levelRestriction(101376, 768000)),
-		level(ProfileLevel::L12, levelRestriction(101376, 1536000)),
-		level(ProfileLevel::L13, levelRestriction(101376, 3041280)),
-		level(ProfileLevel::L20, levelRestriction(101376, 3041280)),
-		level(ProfileLevel::L21, levelRestriction(202752, 5068800)),
-		level(ProfileLevel::L22, levelRestriction(414720, 5184000)),
-		level(ProfileLevel::L30, levelRestriction(414720, 10368000)),
-		level(ProfileLevel::L31, levelRestriction(921600, 27648000)),
-		level(ProfileLevel::L32, levelRestriction(1310720, 55296000)),
-		//level(H264ProfileLevel::40, levelRestriction(2097152, 62914560)), // Technically identical to 4.1, but backwards compatible.
-		level(ProfileLevel::L41, levelRestriction(2097152, 62914560)),
-		level(ProfileLevel::L42, levelRestriction(2228224, 133693440)),
-		level(ProfileLevel::L50, levelRestriction(5652480, 150994944)),
-		level(ProfileLevel::L51, levelRestriction(9437184, 251658240)),
-		level(ProfileLevel::L52, levelRestriction(9437184, 530841600)),
-		level((ProfileLevel)-1, levelRestriction(0, 0))};
+	static const level profileLevelLimit[] = {// [Level, [Samples, Samples_Per_Sec]]
+						  level(ProfileLevel::L10, levelRestriction(25344, 380160)), level(ProfileLevel::L11, levelRestriction(101376, 768000)),
+						  level(ProfileLevel::L12, levelRestriction(101376, 1536000)), level(ProfileLevel::L13, levelRestriction(101376, 3041280)),
+						  level(ProfileLevel::L20, levelRestriction(101376, 3041280)), level(ProfileLevel::L21, levelRestriction(202752, 5068800)),
+						  level(ProfileLevel::L22, levelRestriction(414720, 5184000)), level(ProfileLevel::L30, levelRestriction(414720, 10368000)),
+						  level(ProfileLevel::L31, levelRestriction(921600, 27648000)), level(ProfileLevel::L32, levelRestriction(1310720, 55296000)),
+						  //level(H264ProfileLevel::40, levelRestriction(2097152, 62914560)), // Technically identical to 4.1, but backwards compatible.
+						  level(ProfileLevel::L41, levelRestriction(2097152, 62914560)), level(ProfileLevel::L42, levelRestriction(2228224, 133693440)),
+						  level(ProfileLevel::L50, levelRestriction(5652480, 150994944)), level(ProfileLevel::L51, levelRestriction(9437184, 251658240)),
+						  level(ProfileLevel::L52, levelRestriction(9437184, 530841600)), level((ProfileLevel)-1, levelRestriction(0, 0))};
 
-	uint32_t samples     = resolution.first * resolution.second;
+	uint32_t samples = resolution.first * resolution.second;
 	uint32_t samples_sec = (uint32_t)ceil((double_t)samples * ((double_t)frameRate.first / (double_t)frameRate.second));
 
 	level curLevel = profileLevelLimit[0];
@@ -779,29 +769,22 @@ Plugin::AMD::ProfileLevel Utility::H264ProfileLevel(std::pair<uint32_t, uint32_t
 	}
 	return ProfileLevel::L52;
 }
-Plugin::AMD::ProfileLevel Utility::H265ProfileLevel(std::pair<uint32_t, uint32_t> resolution,
-													std::pair<uint32_t, uint32_t> frameRate)
+Plugin::AMD::ProfileLevel Utility::H265ProfileLevel(std::pair<uint32_t, uint32_t> resolution, std::pair<uint32_t, uint32_t> frameRate)
 {
-	typedef std::pair<uint32_t, uint32_t>             levelRestriction; // Total, Main/Sec, High/Sec
+	typedef std::pair<uint32_t, uint32_t> levelRestriction; // Total, Main/Sec, High/Sec
 	typedef std::pair<ProfileLevel, levelRestriction> level;
 
-	static const level profileLevelLimit[] = {// [Level, [Samples, Samples_Per_Sec]]
-											  level(ProfileLevel::L10, levelRestriction(36864, 552960)),
-											  level(ProfileLevel::L20, levelRestriction(122880, 3686400)),
-											  level(ProfileLevel::L21, levelRestriction(245760, 7372800)),
-											  level(ProfileLevel::L30, levelRestriction(552960, 16588800)),
-											  level(ProfileLevel::L31, levelRestriction(983040, 33177600)),
-											  level(ProfileLevel::L40, levelRestriction(2228224, 66846720)),
-											  level(ProfileLevel::L41, levelRestriction(2228224, 133693440)),
-											  level(ProfileLevel::L50, levelRestriction(8912896, 267386880)),
-											  level(ProfileLevel::L51, levelRestriction(8912896, 534773760)),
-											  level(ProfileLevel::L52, levelRestriction(8912896, 1069547520)),
-											  level(ProfileLevel::L60, levelRestriction(35651584, 1069547520)),
-											  level(ProfileLevel::L61, levelRestriction(35651584, 2139095040)),
-											  level(ProfileLevel::L62, levelRestriction(35651584, 4278190080)),
-											  level((ProfileLevel)-1, levelRestriction(0, 0))};
+	static const level profileLevelLimit[] = {
+		// [Level, [Samples, Samples_Per_Sec]]
+		level(ProfileLevel::L10, levelRestriction(36864, 552960)),        level(ProfileLevel::L20, levelRestriction(122880, 3686400)),
+		level(ProfileLevel::L21, levelRestriction(245760, 7372800)),      level(ProfileLevel::L30, levelRestriction(552960, 16588800)),
+		level(ProfileLevel::L31, levelRestriction(983040, 33177600)),     level(ProfileLevel::L40, levelRestriction(2228224, 66846720)),
+		level(ProfileLevel::L41, levelRestriction(2228224, 133693440)),   level(ProfileLevel::L50, levelRestriction(8912896, 267386880)),
+		level(ProfileLevel::L51, levelRestriction(8912896, 534773760)),   level(ProfileLevel::L52, levelRestriction(8912896, 1069547520)),
+		level(ProfileLevel::L60, levelRestriction(35651584, 1069547520)), level(ProfileLevel::L61, levelRestriction(35651584, 2139095040)),
+		level(ProfileLevel::L62, levelRestriction(35651584, 4278190080)), level((ProfileLevel)-1, levelRestriction(0, 0))};
 
-	uint32_t samples     = resolution.first * resolution.second;
+	uint32_t samples = resolution.first * resolution.second;
 	uint32_t samples_sec = (uint32_t)ceil((double_t)samples * ((double_t)frameRate.first / (double_t)frameRate.second));
 
 	level curLevel = profileLevelLimit[0];
@@ -830,33 +813,33 @@ const DWORD MS_VC_EXCEPTION = 0x406D1388;
 
 #pragma pack(push, 8)
 typedef struct tagTHREADNAME_INFO {
-	DWORD  dwType;     // Must be 0x1000.
-	LPCSTR szName;     // Pointer to name (in user addr space).
-	DWORD  dwThreadID; // Thread ID (-1=caller thread).
-	DWORD  dwFlags;    // Reserved for future use, must be zero.
+	DWORD dwType;     // Must be 0x1000.
+	LPCSTR szName;    // Pointer to name (in user addr space).
+	DWORD dwThreadID; // Thread ID (-1=caller thread).
+	DWORD dwFlags;    // Reserved for future use, must be zero.
 } THREADNAME_INFO;
 #pragma pack(pop)
 
-void Utility::SetThreadName(uint32_t dwThreadID, const char* threadName)
+void Utility::SetThreadName(uint32_t dwThreadID, const char *threadName)
 {
 	// DWORD dwThreadID = ::GetThreadId( static_cast<HANDLE>( t.native_handle() ) );
 
 	THREADNAME_INFO info;
-	info.dwType     = 0x1000;
-	info.szName     = threadName;
+	info.dwType = 0x1000;
+	info.szName = threadName;
 	info.dwThreadID = dwThreadID;
-	info.dwFlags    = 0;
+	info.dwFlags = 0;
 
 	__try {
-		RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), (ULONG_PTR*)&info);
+		RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), (ULONG_PTR *)&info);
 	} __except (EXCEPTION_EXECUTE_HANDLER) {
 	}
 }
-void Utility::SetThreadName(const char* threadName)
+void Utility::SetThreadName(const char *threadName)
 {
 	Utility::SetThreadName(GetCurrentThreadId(), threadName);
 }
-void Utility::SetThreadName(std::thread* pthread, const char* threadName)
+void Utility::SetThreadName(std::thread *pthread, const char *threadName)
 {
 	DWORD threadId = ::GetThreadId(static_cast<HANDLE>(pthread->native_handle()));
 	Utility::SetThreadName(threadId, threadName);
@@ -865,12 +848,12 @@ void Utility::SetThreadName(std::thread* pthread, const char* threadName)
 #else // Linux, Mac
 #include <sys/prctl.h>
 
-void Utility::SetThreadName(std::thread* pthread, const char* threadName)
+void Utility::SetThreadName(std::thread *pthread, const char *threadName)
 {
 	auto handle = pthread->native_handle();
 	pthread_setname_np(handle, threadName);
 }
-void Utility::SetThreadName(const char* threadName)
+void Utility::SetThreadName(const char *threadName)
 {
 	prctl(PR_SET_NAME, threadName, 0, 0, 0);
 }

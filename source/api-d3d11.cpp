@@ -26,12 +26,12 @@
 using namespace Plugin::API;
 
 class SingletonDXGI {
-	public:
+public:
 #pragma region Singleton
 	static std::shared_ptr<SingletonDXGI> GetInstance()
 	{
 		static std::shared_ptr<SingletonDXGI> __instance = std::make_shared<SingletonDXGI>();
-		static std::mutex                     __mutex;
+		static std::mutex __mutex;
 
 		const std::lock_guard<std::mutex> lock(__mutex);
 		return __instance;
@@ -55,7 +55,7 @@ class SingletonDXGI {
 			FreeLibrary(hModule);
 	}
 
-	HRESULT CreateDXGIFactory(REFIID riid, _Out_ void** ppFactory)
+	HRESULT CreateDXGIFactory(REFIID riid, _Out_ void **ppFactory)
 	{
 		if (ppFactory)
 			*ppFactory = nullptr;
@@ -63,7 +63,7 @@ class SingletonDXGI {
 		if (hModule == 0)
 			return S_FALSE;
 
-		typedef HRESULT(__stdcall * t_CreateDXGIFactory)(REFIID, void**);
+		typedef HRESULT(__stdcall * t_CreateDXGIFactory)(REFIID, void **);
 		t_CreateDXGIFactory pCreateDXGIFactory = (t_CreateDXGIFactory)GetProcAddress(hModule, "CreateDXGIFactory");
 
 		if (pCreateDXGIFactory) {
@@ -71,7 +71,7 @@ class SingletonDXGI {
 		}
 		return S_FALSE;
 	}
-	HRESULT CreateDXGIFactory1(REFIID riid, _Out_ void** ppFactory)
+	HRESULT CreateDXGIFactory1(REFIID riid, _Out_ void **ppFactory)
 	{
 		if (ppFactory)
 			*ppFactory = nullptr;
@@ -79,7 +79,7 @@ class SingletonDXGI {
 		if (hModule == 0)
 			return S_FALSE;
 
-		typedef HRESULT(__stdcall * t_CreateDXGIFactory1)(REFIID, void**);
+		typedef HRESULT(__stdcall * t_CreateDXGIFactory1)(REFIID, void **);
 		t_CreateDXGIFactory1 pCreateDXGIFactory1 = (t_CreateDXGIFactory1)GetProcAddress(hModule, "CreateDXGIFactory1");
 
 		if (pCreateDXGIFactory1) {
@@ -88,17 +88,17 @@ class SingletonDXGI {
 		return S_FALSE;
 	}
 
-	private:
+private:
 	HMODULE hModule;
 };
 
 class SingletonD3D11 {
-	public:
+public:
 #pragma region Singleton
 	static std::shared_ptr<SingletonD3D11> GetInstance()
 	{
 		static std::shared_ptr<SingletonD3D11> __instance = std::make_shared<SingletonD3D11>();
-		static std::mutex                      __mutex;
+		static std::mutex __mutex;
 
 		const std::lock_guard<std::mutex> lock(__mutex);
 		return __instance;
@@ -122,11 +122,9 @@ class SingletonD3D11 {
 			FreeLibrary(hModule);
 	}
 
-	HRESULT WINAPI D3D11CreateDevice(_In_opt_ IDXGIAdapter* pAdapter, D3D_DRIVER_TYPE DriverType, HMODULE Software,
-									 UINT Flags, _In_reads_opt_(FeatureLevels) CONST D3D_FEATURE_LEVEL* pFeatureLevels,
-									 UINT FeatureLevels, UINT SDKVersion, _Out_opt_ ID3D11Device** ppDevice,
-									 _Out_opt_ D3D_FEATURE_LEVEL* pFeatureLevel,
-									 _Out_opt_ ID3D11DeviceContext** ppImmediateContext)
+	HRESULT WINAPI D3D11CreateDevice(_In_opt_ IDXGIAdapter *pAdapter, D3D_DRIVER_TYPE DriverType, HMODULE Software, UINT Flags,
+					 _In_reads_opt_(FeatureLevels) CONST D3D_FEATURE_LEVEL *pFeatureLevels, UINT FeatureLevels, UINT SDKVersion,
+					 _Out_opt_ ID3D11Device **ppDevice, _Out_opt_ D3D_FEATURE_LEVEL *pFeatureLevel, _Out_opt_ ID3D11DeviceContext **ppImmediateContext)
 	{
 		if (ppDevice)
 			*ppDevice = nullptr;
@@ -137,26 +135,24 @@ class SingletonD3D11 {
 		if (hModule == 0)
 			return S_FALSE;
 
-		typedef HRESULT(__stdcall * t_D3D11CreateDevice)(_In_opt_ IDXGIAdapter*, D3D_DRIVER_TYPE, HMODULE, UINT,
-														 CONST D3D_FEATURE_LEVEL*, UINT, UINT, _Out_opt_ ID3D11Device**,
-														 _Out_opt_ D3D_FEATURE_LEVEL*, _Out_opt_ ID3D11DeviceContext**);
+		typedef HRESULT(__stdcall * t_D3D11CreateDevice)(_In_opt_ IDXGIAdapter *, D3D_DRIVER_TYPE, HMODULE, UINT, CONST D3D_FEATURE_LEVEL *, UINT, UINT,
+								 _Out_opt_ ID3D11Device **, _Out_opt_ D3D_FEATURE_LEVEL *, _Out_opt_ ID3D11DeviceContext **);
 		t_D3D11CreateDevice pD3D11CreateDevice = (t_D3D11CreateDevice)GetProcAddress(hModule, "D3D11CreateDevice");
 
 		if (pD3D11CreateDevice) {
-			return pD3D11CreateDevice(pAdapter, DriverType, Software, Flags, pFeatureLevels, FeatureLevels, SDKVersion,
-									  ppDevice, pFeatureLevel, ppImmediateContext);
+			return pD3D11CreateDevice(pAdapter, DriverType, Software, Flags, pFeatureLevels, FeatureLevels, SDKVersion, ppDevice, pFeatureLevel, ppImmediateContext);
 		}
 		return S_FALSE;
 	}
 
-	private:
+private:
 	HMODULE hModule;
 };
 
 Plugin::API::Direct3D11::Direct3D11()
 {
-	auto    dxgiInst = SingletonDXGI::GetInstance();
-	HRESULT hr       = dxgiInst->CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void**)&m_DXGIFactory);
+	auto dxgiInst = SingletonDXGI::GetInstance();
+	HRESULT hr = dxgiInst->CreateDXGIFactory1(__uuidof(IDXGIFactory1), (void **)&m_DXGIFactory);
 	if (FAILED(hr)) {
 		std::vector<char> buf(1024);
 		snprintf(buf.data(), buf.size(), "<%s> Unable to create DXGI, error code %X.", __FUNCTION_NAME__, hr);
@@ -164,9 +160,8 @@ Plugin::API::Direct3D11::Direct3D11()
 	}
 
 	// Enumerate Adapters
-	IDXGIAdapter1* dxgiAdapter = nullptr;
-	for (size_t adapterIndex = 0; !FAILED(m_DXGIFactory->EnumAdapters1((UINT)adapterIndex, &dxgiAdapter));
-		 adapterIndex++) {
+	IDXGIAdapter1 *dxgiAdapter = nullptr;
+	for (size_t adapterIndex = 0; !FAILED(m_DXGIFactory->EnumAdapters1((UINT)adapterIndex, &dxgiAdapter)); adapterIndex++) {
 		DXGI_ADAPTER_DESC1 desc = DXGI_ADAPTER_DESC1();
 		dxgiAdapter->GetDesc1(&desc);
 
@@ -174,8 +169,7 @@ Plugin::API::Direct3D11::Direct3D11()
 			continue;
 
 		std::vector<char> buf(1024);
-		snprintf(buf.data(), buf.size(), "%ls (VEN_%04x/DEV_%04x/SUB_%04x/REV_%04x)", desc.Description, desc.VendorId,
-				 desc.DeviceId, desc.SubSysId, desc.Revision);
+		snprintf(buf.data(), buf.size(), "%ls (VEN_%04x/DEV_%04x/SUB_%04x/REV_%04x)", desc.Description, desc.VendorId, desc.DeviceId, desc.SubSysId, desc.Revision);
 
 		m_AdapterList.emplace_back(desc.AdapterLuid.LowPart, desc.AdapterLuid.HighPart, std::string(buf.data()));
 	}
@@ -212,17 +206,15 @@ Plugin::API::Type Plugin::API::Direct3D11::GetType()
 	return Type::Direct3D11;
 }
 
-Plugin::API::Direct3D11Instance::Direct3D11Instance(Direct3D11* api, Adapter adapter)
-	: m_API(api), m_Adapter(adapter), m_Device(nullptr), m_DeviceContext(nullptr)
+Plugin::API::Direct3D11Instance::Direct3D11Instance(Direct3D11 *api, Adapter adapter) : m_API(api), m_Adapter(adapter), m_Device(nullptr), m_DeviceContext(nullptr)
 {
 	LUID adapterLUID;
-	adapterLUID.LowPart  = adapter.idLow;
+	adapterLUID.LowPart = adapter.idLow;
 	adapterLUID.HighPart = adapter.idHigh;
 
-	HRESULT       hr = E_FAIL;
-	IDXGIAdapter* dxgiAdapter;
-	for (size_t adapterIndex = 0; !FAILED(api->m_DXGIFactory->EnumAdapters((UINT)adapterIndex, &dxgiAdapter));
-		 adapterIndex++) {
+	HRESULT hr = E_FAIL;
+	IDXGIAdapter *dxgiAdapter;
+	for (size_t adapterIndex = 0; !FAILED(api->m_DXGIFactory->EnumAdapters((UINT)adapterIndex, &dxgiAdapter)); adapterIndex++) {
 		DXGI_ADAPTER_DESC desc = DXGI_ADAPTER_DESC();
 		dxgiAdapter->GetDesc(&desc);
 
@@ -240,7 +232,7 @@ Plugin::API::Direct3D11Instance::Direct3D11Instance(Direct3D11* api, Adapter ada
 		throw std::invalid_argument("adapter");
 
 	// Create D3D Stuff
-	auto              d3dInst         = SingletonD3D11::GetInstance();
+	auto d3dInst = SingletonD3D11::GetInstance();
 	D3D_FEATURE_LEVEL featureLevels[] = {D3D_FEATURE_LEVEL_11_1, D3D_FEATURE_LEVEL_11_0};
 	for (size_t featureLevel = 0; featureLevel < _countof(featureLevels); featureLevel++) {
 		for (size_t enabledFlags = 0; enabledFlags < 3; enabledFlags++) {
@@ -255,15 +247,13 @@ Plugin::API::Direct3D11Instance::Direct3D11Instance(Direct3D11* api, Adapter ada
 				break;
 			}
 
-			hr = d3dInst->D3D11CreateDevice(
-				dxgiAdapter, dxgiAdapter == NULL ? D3D_DRIVER_TYPE_HARDWARE : D3D_DRIVER_TYPE_UNKNOWN, NULL, flags,
-				featureLevels + featureLevel, UINT(_countof(featureLevels) - featureLevel), D3D11_SDK_VERSION,
-				&m_Device, NULL, &m_DeviceContext);
+			hr = d3dInst->D3D11CreateDevice(dxgiAdapter, dxgiAdapter == NULL ? D3D_DRIVER_TYPE_HARDWARE : D3D_DRIVER_TYPE_UNKNOWN, NULL, flags,
+							featureLevels + featureLevel, UINT(_countof(featureLevels) - featureLevel), D3D11_SDK_VERSION, &m_Device, NULL,
+							&m_DeviceContext);
 			if (SUCCEEDED(hr)) {
 				break;
 			} else {
-				PLOG_DEBUG("<%s> Unable to create D3D11 device, error code %X (mode %lld, level %lld).",
-						   __FUNCTION_NAME__, hr, enabledFlags, featureLevel);
+				PLOG_DEBUG("<%s> Unable to create D3D11 device, error code %X (mode %lld, level %lld).", __FUNCTION_NAME__, hr, enabledFlags, featureLevel);
 			}
 		}
 	}
@@ -289,7 +279,7 @@ Plugin::API::Adapter Plugin::API::Direct3D11Instance::GetAdapter()
 	return m_Adapter;
 }
 
-void* Plugin::API::Direct3D11Instance::GetContext()
+void *Plugin::API::Direct3D11Instance::GetContext()
 {
 	return m_Device;
 }

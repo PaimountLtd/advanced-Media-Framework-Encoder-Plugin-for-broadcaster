@@ -21,19 +21,19 @@
 #include "api-base.hpp"
 
 namespace Plugin {
-	namespace API {
-		class Host : public IAPI {
-			public:
-			virtual std::string               GetName() override;
-			virtual Type                      GetType() override;
-			virtual std::vector<Adapter>      EnumerateAdapters() override;
-			virtual std::shared_ptr<Instance> CreateInstance(Adapter adapter) override;
-		};
+namespace API {
+class Host : public IAPI {
+public:
+	virtual std::string GetName() override;
+	virtual Type GetType() override;
+	virtual std::vector<Adapter> EnumerateAdapters() override;
+	virtual std::shared_ptr<Instance> CreateInstance(Adapter adapter) override;
+};
 
-		class HostInstance : public Instance {
-			public:
-			virtual Adapter GetAdapter() override;
-			virtual void*   GetContext() override;
-		};
-	} // namespace API
+class HostInstance : public Instance {
+public:
+	virtual Adapter GetAdapter() override;
+	virtual void *GetContext() override;
+};
+} // namespace API
 } // namespace Plugin

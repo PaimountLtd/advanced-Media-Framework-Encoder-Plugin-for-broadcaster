@@ -33,67 +33,61 @@ extern "C" {
 }
 
 namespace Plugin {
-	namespace AMD {
+namespace AMD {
 
-		class AMFException : public std::exception {
-			public:
-			AMFException(const char* what, int code) : std::exception(what), code(code) {}
-			int Code() const
-			{
-				return code;
-			}
-			int Code()
-			{
-				return code;
-			}
+class AMFException : public std::exception {
+public:
+	AMFException(const char *what, int code) : std::exception(what), code(code) {}
+	int Code() const { return code; }
+	int Code() { return code; }
 
-			private:
-			int code;
-		};
+private:
+	int code;
+};
 
-		class AMF {
+class AMF {
 #pragma region Singleton
-			public:
-			static void Initialize();
-			static AMF* Instance();
-			static void Finalize();
+public:
+	static void Initialize();
+	static AMF *Instance();
+	static void Finalize();
 
-			private: // Private Initializer & Finalizer
-			AMF();
-			~AMF();
+private: // Private Initializer & Finalizer
+	AMF();
+	~AMF();
 
-			public: // Remove all Copy operators
-			AMF(AMF const&) = delete;
-			void operator=(AMF const&) = delete;
+public: // Remove all Copy operators
+	AMF(AMF const &) = delete;
+	void operator=(AMF const &) = delete;
 #pragma endregion Singleton
 
-			public:
-			amf::AMFFactory* GetFactory();
-			amf::AMFTrace*   GetTrace();
-			amf::AMFDebug*   GetDebug();
+public:
+	amf::AMFFactory *GetFactory();
+	amf::AMFTrace *GetTrace();
+	amf::AMFDebug *GetDebug();
 
-			void EnableDebugTrace(bool enable);
+	void EnableDebugTrace(bool enable);
 
-			uint64_t GetPluginVersion();
-			uint64_t GetRuntimeVersion();
+	uint64_t GetPluginVersion();
+	uint64_t GetRuntimeVersion();
 
-			private:
-			uint32_t m_TimerPeriod; /// High-Precision Timer Accuracy (nanoseconds)
+private:
+	uint32_t m_TimerPeriod; /// High-Precision Timer Accuracy (nanoseconds)
 
-			/// AMF Values
-			HMODULE  m_AMFModule;
-			uint64_t m_AMFVersion_Plugin;
-			uint64_t m_AMFVersion_Runtime;
+	/// AMF Values
+	HMODULE m_AMFModule;
+	uint64_t m_AMFVersion_Plugin;
+	uint64_t m_AMFVersion_Runtime;
 
-			/// AMF Functions
-			AMFQueryVersion_Fn AMFQueryVersion;
-			AMFInit_Fn         AMFInit;
+	/// AMF Functions
+	AMFQueryVersion_Fn AMFQueryVersion;
+	AMFInit_Fn AMFInit;
 
-			/// AMF Objects
-			amf::AMFFactory*     m_AMFFactory;
-			amf::AMFTrace*       m_AMFTrace;
-			amf::AMFDebug*       m_AMFDebug;
-			amf::AMFTraceWriter* m_TraceWriter;
-		};
-	} // namespace AMD
+	/// AMF Objects
+	amf::AMFFactory *m_AMFFactory;
+	amf::AMFTrace *m_AMFTrace;
+	amf::AMFDebug *m_AMFDebug;
+	amf::AMFTraceWriter *m_TraceWriter;
+};
+} // namespace AMD
 } // namespace Plugin

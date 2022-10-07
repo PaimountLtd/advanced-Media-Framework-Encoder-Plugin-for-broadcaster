@@ -46,7 +46,7 @@ DWORD WINAPI TimeoutThread(LPVOID param)
 }
 #endif
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
 	argc;
 	argv;
@@ -55,8 +55,7 @@ int main(int argc, char* argv[])
 	SetErrorMode(SEM_NOGPFAULTERRORBOX | SEM_FAILCRITICALERRORS);
 
 	HANDLE hMainThread;
-	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &hMainThread, 0, FALSE,
-					DUPLICATE_SAME_ACCESS);
+	DuplicateHandle(GetCurrentProcess(), GetCurrentThread(), GetCurrentProcess(), &hMainThread, 0, FALSE, DUPLICATE_SAME_ACCESS);
 
 	DWORD threadId;
 	HANDLE hThread;
@@ -72,7 +71,7 @@ int main(int argc, char* argv[])
 		API::FinalizeAPIs();
 		AMF::Finalize();
 		return 0;
-	} catch (std::exception& ex) {
+	} catch (std::exception &ex) {
 		printf("[AMF] %s", ex.what());
 		fflush(NULL);
 		return 1;

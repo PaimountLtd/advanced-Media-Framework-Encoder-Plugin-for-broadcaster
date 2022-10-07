@@ -25,16 +25,16 @@ using namespace Plugin::AMD;
 
 #pragma region Singleton
 
-static CapabilityManager* __instance;
-static std::mutex         __instance_mutex;
-void                      Plugin::AMD::CapabilityManager::Initialize()
+static CapabilityManager *__instance;
+static std::mutex __instance_mutex;
+void Plugin::AMD::CapabilityManager::Initialize()
 {
 	const std::lock_guard<std::mutex> lock(__instance_mutex);
 	if (!__instance)
 		__instance = new CapabilityManager();
 }
 
-CapabilityManager* Plugin::AMD::CapabilityManager::Instance()
+CapabilityManager *Plugin::AMD::CapabilityManager::Instance()
 {
 	const std::lock_guard<std::mutex> lock(__instance_mutex);
 	return __instance;
@@ -63,7 +63,7 @@ Plugin::AMD::CapabilityManager::CapabilityManager()
 				std::make_pair(Codec::HEVC, false),
 			};
 
-			for (auto& codec : test_codecs) {
+			for (auto &codec : test_codecs) {
 				try {
 					std::unique_ptr<AMD::Encoder> enc;
 
@@ -76,35 +76,30 @@ Plugin::AMD::CapabilityManager::CapabilityManager()
 					if (enc != nullptr) {
 						codec.second = true;
 					}
-				} catch (const AMFException& amf_ex) {
-						(void)amf_ex; // Avoid invalid warning about unreferenced variable
-						PLOG_DEBUG("[Capability Manager] Testing %s Adapter '%s' with codec %s failed, reason: %s. Aborting",
-							   api->GetName().c_str(), adapter.Name.c_str(), Utility::CodecToString(codec.first),
-							   amf_ex.what(), amf_ex.Code());
+				} catch (const AMFException &amf_ex) {
+					(void)amf_ex; // Avoid invalid warning about unreferenced variable
+					PLOG_DEBUG("[Capability Manager] Testing %s Adapter '%s' with codec %s failed, reason: %s. Aborting", api->GetName().c_str(),
+						   adapter.Name.c_str(), Utility::CodecToString(codec.first), amf_ex.what(), amf_ex.Code());
 				}
-				
-				 catch (const std::exception& e) {
-					PLOG_DEBUG("[Capability Manager] Testing %s Adapter '%s' with codec %s failed, reason: %s",
-							   api->GetName().c_str(), adapter.Name.c_str(), Utility::CodecToString(codec.first),
-							   e.what());
-							   
+
+				catch (const std::exception &e) {
+					PLOG_DEBUG("[Capability Manager] Testing %s Adapter '%s' with codec %s failed, reason: %s", api->GetName().c_str(), adapter.Name.c_str(),
+						   Utility::CodecToString(codec.first), e.what());
+
 #ifdef LITE_OBS
 					e;
 #endif
 				}
 
-				std::tuple<API::Type, API::Adapter, AMD::Codec> key =
-					std::make_tuple(api->GetType(), adapter, codec.first);
+				std::tuple<API::Type, API::Adapter, AMD::Codec> key = std::make_tuple(api->GetType(), adapter, codec.first);
 				m_CapabilityMap[key] = codec.second;
 			}
 
-			PLOG_INFO(
-				"[Capability Manager] Testing %s Adapter '%s':\n"
-				"  %s: %s\n"
-				"  %s: %s\n",
-				api->GetName().c_str(), adapter.Name.c_str(), Utility::CodecToString(test_codecs[0].first),
-				test_codecs[0].second ? "Supported" : "Not Supported", Utility::CodecToString(test_codecs[1].first),
-				test_codecs[1].second ? "Supported" : "Not Supported");
+			PLOG_INFO("[Capability Manager] Testing %s Adapter '%s':\n"
+				  "  %s: %s\n"
+				  "  %s: %s\n",
+				  api->GetName().c_str(), adapter.Name.c_str(), Utility::CodecToString(test_codecs[0].first), test_codecs[0].second ? "Supported" : "Not Supported",
+				  Utility::CodecToString(test_codecs[1].first), test_codecs[1].second ? "Supported" : "Not Supported");
 		}
 	}
 }

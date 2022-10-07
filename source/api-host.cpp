@@ -48,7 +48,7 @@ Plugin::API::Adapter Plugin::API::HostInstance::GetAdapter()
 	return Adapter(0, 0, "Default");
 }
 
-void* Plugin::API::HostInstance::GetContext()
+void *Plugin::API::HostInstance::GetContext()
 {
 	return nullptr;
 }

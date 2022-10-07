@@ -34,18 +34,18 @@ static obs_encoder_info _oei = {};
 
 void Plugin::Interface::H264Interface::encoder_register()
 {
-	_oei.type  = OBS_ENCODER_VIDEO;
-	_oei.id    = "amd_amf_h264";
+	_oei.type = OBS_ENCODER_VIDEO;
+	_oei.id = "amd_amf_h264";
 	_oei.codec = "h264";
-	_oei.caps  = OBS_ENCODER_CAP_DEPRECATED;
+	_oei.caps = OBS_ENCODER_CAP_DEPRECATED;
 
-	_oei.get_name       = get_name;
-	_oei.get_defaults   = get_defaults;
+	_oei.get_name = get_name;
+	_oei.get_defaults = get_defaults;
 	_oei.get_properties = get_properties;
-	_oei.create         = create;
-	_oei.destroy        = destroy;
-	_oei.encode         = encode;
-	_oei.update         = update;
+	_oei.create = create;
+	_oei.destroy = destroy;
+	_oei.encode = encode;
+	_oei.update = update;
 	_oei.get_video_info = get_video_info;
 	_oei.get_extra_data = get_extra_data;
 
@@ -59,16 +59,16 @@ void Plugin::Interface::H264Interface::encoder_register()
 	PLOG_DEBUG(PREFIX " Registered.");
 }
 
-const char* Plugin::Interface::H264Interface::get_name(void*) noexcept
+const char *Plugin::Interface::H264Interface::get_name(void *) noexcept
 {
 	return "H264/AVC Encoder (" PLUGIN_NAME ")";
 }
 
-void* Plugin::Interface::H264Interface::create(obs_data_t* settings, obs_encoder_t* encoder) noexcept
+void *Plugin::Interface::H264Interface::create(obs_data_t *settings, obs_encoder_t *encoder) noexcept
 try {
 	try {
 		return new Plugin::Interface::H264Interface(settings, encoder);
-	} catch (const std::exception& e) {
+	} catch (const std::exception &e) {
 		PLOG_ERROR("%s", e.what());
 	}
 	return nullptr;
@@ -77,23 +77,22 @@ try {
 	return nullptr;
 }
 
-void Plugin::Interface::H264Interface::destroy(void* data) noexcept
+void Plugin::Interface::H264Interface::destroy(void *data) noexcept
 try {
 	if (data)
-		delete static_cast<Plugin::Interface::H264Interface*>(data);
-} catch (const std::exception& ex) {
+		delete static_cast<Plugin::Interface::H264Interface *>(data);
+} catch (const std::exception &ex) {
 	PLOG_ERROR("Unexpected exception in %s: %s", __FUNCTION_NAME__, ex.what());
 } catch (...) {
 	PLOG_ERROR("Unexpected unknown exception in %s.", __FUNCTION_NAME__);
 }
 
-bool Plugin::Interface::H264Interface::encode(void* data, struct encoder_frame* frame, struct encoder_packet* packet,
-											  bool* received_packet) noexcept
+bool Plugin::Interface::H264Interface::encode(void *data, struct encoder_frame *frame, struct encoder_packet *packet, bool *received_packet) noexcept
 try {
 	if (data)
-		return static_cast<Plugin::Interface::H264Interface*>(data)->encode(frame, packet, received_packet);
+		return static_cast<Plugin::Interface::H264Interface *>(data)->encode(frame, packet, received_packet);
 	return false;
-} catch (const std::exception& ex) {
+} catch (const std::exception &ex) {
 	PLOG_ERROR("Unexpected exception in %s: %s", __FUNCTION_NAME__, ex.what());
 	return false;
 } catch (...) {
@@ -101,7 +100,7 @@ try {
 	return false;
 }
 
-void Plugin::Interface::H264Interface::get_defaults(obs_data_t* data) noexcept
+void Plugin::Interface::H264Interface::get_defaults(obs_data_t *data) noexcept
 {
 #pragma region OBS - Enforce Streaming Service Restrictions
 	obs_data_set_default_int(data, "keyint_sec", 0);
@@ -181,10 +180,10 @@ void Plugin::Interface::H264Interface::get_defaults(obs_data_t* data) noexcept
 	obs_data_set_default_int(data, P_VERSION, PLUGIN_VERSION_FULL);
 }
 
-obs_properties_t* Plugin::Interface::H264Interface::get_properties(void* data) noexcept
+obs_properties_t *Plugin::Interface::H264Interface::get_properties(void *data) noexcept
 try {
-	obs_properties* props = obs_properties_create();
-	obs_property_t* p;
+	obs_properties *props = obs_properties_create();
+	obs_property_t *p;
 
 #pragma region Preset
 	p = obs_properties_add_list(props, P_PRESET, P_TRANSLATE(P_PRESET), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
@@ -193,8 +192,7 @@ try {
 	obs_property_list_add_int(p, P_TRANSLATE(P_PRESET_RESETTODEFAULTS), static_cast<int32_t>(Presets::ResetToDefaults));
 	obs_property_list_add_int(p, P_TRANSLATE(P_PRESET_RECORDING), static_cast<int32_t>(Presets::Recording));
 	obs_property_list_add_int(p, P_TRANSLATE(P_PRESET_HIGHQUALITY), static_cast<int32_t>(Presets::HighQuality));
-	obs_property_list_add_int(p, P_TRANSLATE(P_PRESET_INDISTINGUISHABLE),
-							  static_cast<int32_t>(Presets::Indistinguishable));
+	obs_property_list_add_int(p, P_TRANSLATE(P_PRESET_INDISTINGUISHABLE), static_cast<int32_t>(Presets::Indistinguishable));
 	obs_property_list_add_int(p, P_TRANSLATE(P_PRESET_LOSSLESS), static_cast<int32_t>(Presets::Lossless));
 	obs_property_list_add_int(p, P_TRANSLATE(P_PRESET_TWITCH), static_cast<int32_t>(Presets::Twitch));
 	obs_property_list_add_int(p, P_TRANSLATE(P_PRESET_YOUTUBE), static_cast<int32_t>(Presets::YouTube));
@@ -202,8 +200,7 @@ try {
 
 	// Static Properties
 #pragma region Quality Preset
-	p = obs_properties_add_list(props, P_QUALITYPRESET, P_TRANSLATE(P_QUALITYPRESET), OBS_COMBO_TYPE_LIST,
-								OBS_COMBO_FORMAT_INT);
+	p = obs_properties_add_list(props, P_QUALITYPRESET, P_TRANSLATE(P_QUALITYPRESET), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_QUALITYPRESET)));
 	obs_property_list_add_int(p, P_TRANSLATE(P_QUALITYPRESET_SPEED), static_cast<int32_t>(QualityPreset::Speed));
 	obs_property_list_add_int(p, P_TRANSLATE(P_QUALITYPRESET_BALANCED), static_cast<int32_t>(QualityPreset::Balanced));
@@ -219,8 +216,7 @@ try {
 	obs_property_list_add_int(p, "Constrained High", static_cast<int32_t>(Profile::ConstrainedHigh));
 	obs_property_list_add_int(p, "High", static_cast<int32_t>(Profile::High));
 
-	p = obs_properties_add_list(props, P_PROFILELEVEL, P_TRANSLATE(P_PROFILELEVEL), OBS_COMBO_TYPE_LIST,
-								OBS_COMBO_FORMAT_INT);
+	p = obs_properties_add_list(props, P_PROFILELEVEL, P_TRANSLATE(P_PROFILELEVEL), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_PROFILELEVEL)));
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_AUTOMATIC), static_cast<int32_t>(ProfileLevel::Automatic));
 	obs_property_list_add_int(p, "1.0", static_cast<int32_t>(ProfileLevel::L10));
@@ -242,8 +238,7 @@ try {
 #pragma endregion Profile, Levels
 
 #pragma region Coding Type
-	p = obs_properties_add_list(props, P_CODINGTYPE, P_TRANSLATE(P_CODINGTYPE), OBS_COMBO_TYPE_LIST,
-								OBS_COMBO_FORMAT_INT);
+	p = obs_properties_add_list(props, P_CODINGTYPE, P_TRANSLATE(P_CODINGTYPE), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_CODINGTYPE)));
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_AUTOMATIC), static_cast<int32_t>(CodingType::Automatic));
 	obs_property_list_add_int(p, "CABAC", static_cast<int32_t>(CodingType::CABAC));
@@ -257,23 +252,17 @@ try {
 
 	// Rate Control
 #pragma region Rate Control Method
-	p = obs_properties_add_list(props, P_RATECONTROLMETHOD, P_TRANSLATE(P_RATECONTROLMETHOD), OBS_COMBO_TYPE_LIST,
-								OBS_COMBO_FORMAT_INT);
+	p = obs_properties_add_list(props, P_RATECONTROLMETHOD, P_TRANSLATE(P_RATECONTROLMETHOD), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_RATECONTROLMETHOD)));
-	obs_property_list_add_int(p, P_TRANSLATE(P_RATECONTROLMETHOD_CQP),
-							  static_cast<int32_t>(RateControlMethod::ConstantQP));
-	obs_property_list_add_int(p, P_TRANSLATE(P_RATECONTROLMETHOD_CBR),
-							  static_cast<int32_t>(RateControlMethod::ConstantBitrate));
-	obs_property_list_add_int(p, P_TRANSLATE(P_RATECONTROLMETHOD_VBR),
-							  static_cast<int32_t>(RateControlMethod::PeakConstrainedVariableBitrate));
-	obs_property_list_add_int(p, P_TRANSLATE(P_RATECONTROLMETHOD_VBRLAT),
-							  static_cast<int32_t>(RateControlMethod::LatencyConstrainedVariableBitrate));
+	obs_property_list_add_int(p, P_TRANSLATE(P_RATECONTROLMETHOD_CQP), static_cast<int32_t>(RateControlMethod::ConstantQP));
+	obs_property_list_add_int(p, P_TRANSLATE(P_RATECONTROLMETHOD_CBR), static_cast<int32_t>(RateControlMethod::ConstantBitrate));
+	obs_property_list_add_int(p, P_TRANSLATE(P_RATECONTROLMETHOD_VBR), static_cast<int32_t>(RateControlMethod::PeakConstrainedVariableBitrate));
+	obs_property_list_add_int(p, P_TRANSLATE(P_RATECONTROLMETHOD_VBRLAT), static_cast<int32_t>(RateControlMethod::LatencyConstrainedVariableBitrate));
 	obs_property_set_modified_callback(p, properties_modified);
 #pragma endregion Rate Control Method
 
 #pragma region Pre - Pass
-	p = obs_properties_add_list(props, P_PREPASSMODE, P_TRANSLATE(P_PREPASSMODE), OBS_COMBO_TYPE_LIST,
-								OBS_COMBO_FORMAT_INT);
+	p = obs_properties_add_list(props, P_PREPASSMODE, P_TRANSLATE(P_PREPASSMODE), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_PREPASSMODE)));
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_DISABLED), static_cast<int32_t>(PrePassMode::Disabled));
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_ENABLED), static_cast<int32_t>(PrePassMode::Enabled));
@@ -302,23 +291,20 @@ try {
 #pragma endregion Parameters
 
 #pragma region Filler Data
-	p = obs_properties_add_list(props, P_FILLERDATA, P_TRANSLATE(P_FILLERDATA), OBS_COMBO_TYPE_LIST,
-								OBS_COMBO_FORMAT_INT);
+	p = obs_properties_add_list(props, P_FILLERDATA, P_TRANSLATE(P_FILLERDATA), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_FILLERDATA)));
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_DISABLED), 0);
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_ENABLED), 1);
 #pragma endregion Filler Data
 
 #pragma region Frame Skipping
-	p = obs_properties_add_list(props, P_FRAMESKIPPING, P_TRANSLATE(P_FRAMESKIPPING), OBS_COMBO_TYPE_LIST,
-								OBS_COMBO_FORMAT_INT);
+	p = obs_properties_add_list(props, P_FRAMESKIPPING, P_TRANSLATE(P_FRAMESKIPPING), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_FRAMESKIPPING)));
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_DISABLED), 0);
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_ENABLED), 1);
 	p = obs_properties_add_int(props, P_FRAMESKIPPING_PERIOD, P_TRANSLATE(P_FRAMESKIPPING_PERIOD), 0, 1000, 1);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_FRAMESKIPPING_PERIOD)));
-	p = obs_properties_add_list(props, P_FRAMESKIPPING_BEHAVIOUR, P_TRANSLATE(P_FRAMESKIPPING_BEHAVIOUR),
-								OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
+	p = obs_properties_add_list(props, P_FRAMESKIPPING_BEHAVIOUR, P_TRANSLATE(P_FRAMESKIPPING_BEHAVIOUR), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_FRAMESKIPPING_BEHAVIOUR)));
 	obs_property_list_add_int(p, P_TRANSLATE(P_FRAMESKIPPING_SKIPNTH), 0);
 	obs_property_list_add_int(p, P_TRANSLATE(P_FRAMESKIPPING_KEEPNTH), 1);
@@ -332,16 +318,14 @@ try {
 #pragma endregion VBAQ
 
 #pragma region Enforce Hypothetical Reference Decoder Restrictions
-	p = obs_properties_add_list(props, P_ENFORCEHRD, P_TRANSLATE(P_ENFORCEHRD), OBS_COMBO_TYPE_LIST,
-								OBS_COMBO_FORMAT_INT);
+	p = obs_properties_add_list(props, P_ENFORCEHRD, P_TRANSLATE(P_ENFORCEHRD), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_ENFORCEHRD)));
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_DISABLED), 0);
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_ENABLED), 1);
 #pragma endregion Enforce Hypothetical Reference Decoder Restrictions
 
 	{ // High Motion Quality Boost
-		p = obs_properties_add_list(props, P_HIGHMOTIONQUALITYBOOST, P_TRANSLATE(P_HIGHMOTIONQUALITYBOOST),
-									OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
+		p = obs_properties_add_list(props, P_HIGHMOTIONQUALITYBOOST, P_TRANSLATE(P_HIGHMOTIONQUALITYBOOST), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 		obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_HIGHMOTIONQUALITYBOOST)));
 		obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_DEFAULT), -1);
 		obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_DISABLED), 0);
@@ -350,8 +334,7 @@ try {
 
 	// VBV Buffer
 #pragma region VBV Buffer Mode
-	p = obs_properties_add_list(props, P_VBVBUFFER, P_TRANSLATE(P_VBVBUFFER), OBS_COMBO_TYPE_LIST,
-								OBS_COMBO_FORMAT_INT);
+	p = obs_properties_add_list(props, P_VBVBUFFER, P_TRANSLATE(P_VBVBUFFER), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_VBVBUFFER)));
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_AUTOMATIC), 0);
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_MANUAL), 1);
@@ -359,8 +342,7 @@ try {
 #pragma endregion VBV Buffer Mode
 
 #pragma region VBV Buffer Strictness
-	p = obs_properties_add_float_slider(props, P_VBVBUFFER_STRICTNESS, P_TRANSLATE(P_VBVBUFFER_STRICTNESS), 0.0, 100.0,
-										0.1);
+	p = obs_properties_add_float_slider(props, P_VBVBUFFER_STRICTNESS, P_TRANSLATE(P_VBVBUFFER_STRICTNESS), 0.0, 100.0, 0.1);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_VBVBUFFER_STRICTNESS)));
 #pragma endregion VBV Buffer Strictness
 
@@ -370,8 +352,7 @@ try {
 #pragma endregion VBV Buffer Size
 
 #pragma region VBV Buffer Initial Fullness
-	p = obs_properties_add_float_slider(props, P_VBVBUFFER_INITIALFULLNESS, P_TRANSLATE(P_VBVBUFFER_INITIALFULLNESS),
-										0.0, 100.0, 100.0 / 64.0);
+	p = obs_properties_add_float_slider(props, P_VBVBUFFER_INITIALFULLNESS, P_TRANSLATE(P_VBVBUFFER_INITIALFULLNESS), 0.0, 100.0, 100.0 / 64.0);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_VBVBUFFER_INITIALFULLNESS)));
 #pragma endregion VBV Buffer Initial Fullness
 
@@ -406,8 +387,7 @@ try {
 #pragma endregion B - Frames Pattern
 
 #pragma region B - Frames Reference
-	p = obs_properties_add_list(props, P_BFRAME_REFERENCE, P_TRANSLATE(P_BFRAME_REFERENCE), OBS_COMBO_TYPE_LIST,
-								OBS_COMBO_FORMAT_INT);
+	p = obs_properties_add_list(props, P_BFRAME_REFERENCE, P_TRANSLATE(P_BFRAME_REFERENCE), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_BFRAME_REFERENCE)));
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_DISABLED), 0);
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_ENABLED), 1);
@@ -415,8 +395,7 @@ try {
 #pragma endregion B - Frames Reference
 
 #pragma region B - Frames Delta QP
-	p = obs_properties_add_int_slider(props, P_BFRAME_REFERENCEDELTAQP, P_TRANSLATE(P_BFRAME_REFERENCEDELTAQP), -10, 10,
-									  1);
+	p = obs_properties_add_int_slider(props, P_BFRAME_REFERENCEDELTAQP, P_TRANSLATE(P_BFRAME_REFERENCEDELTAQP), -10, 10, 1);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_BFRAME_REFERENCEDELTAQP)));
 
 	p = obs_properties_add_int_slider(props, P_BFRAME_DELTAQP, P_TRANSLATE(P_BFRAME_DELTAQP), -10, 10, 1);
@@ -424,16 +403,14 @@ try {
 #pragma endregion B - Frames Delta QP
 
 #pragma region Deblocking Filter
-	p = obs_properties_add_list(props, P_DEBLOCKINGFILTER, P_TRANSLATE(P_DEBLOCKINGFILTER), OBS_COMBO_TYPE_LIST,
-								OBS_COMBO_FORMAT_INT);
+	p = obs_properties_add_list(props, P_DEBLOCKINGFILTER, P_TRANSLATE(P_DEBLOCKINGFILTER), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_DEBLOCKINGFILTER)));
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_DISABLED), 0);
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_ENABLED), 1);
 #pragma endregion Deblocking Filter
 
 #pragma region Motion Estimation
-	p = obs_properties_add_list(props, P_MOTIONESTIMATION, P_TRANSLATE(P_MOTIONESTIMATION), OBS_COMBO_TYPE_LIST,
-								OBS_COMBO_FORMAT_INT);
+	p = obs_properties_add_list(props, P_MOTIONESTIMATION, P_TRANSLATE(P_MOTIONESTIMATION), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_MOTIONESTIMATION)));
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_DISABLED), 0);
 	obs_property_list_add_int(p, P_TRANSLATE(P_MOTIONESTIMATION_HALF), 1);
@@ -443,37 +420,32 @@ try {
 
 	// System
 #pragma region Video APIs
-	p = obs_properties_add_list(props, P_VIDEO_API, P_TRANSLATE(P_VIDEO_API), OBS_COMBO_TYPE_LIST,
-								OBS_COMBO_FORMAT_STRING);
+	p = obs_properties_add_list(props, P_VIDEO_API, P_TRANSLATE(P_VIDEO_API), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_STRING);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_VIDEO_API)));
 	obs_property_set_modified_callback(p, properties_modified);
 	Utility::fill_api_list(p, Codec::AVC);
 #pragma endregion Video APIs
 
 #pragma region Video Adapters
-	p = obs_properties_add_list(props, P_VIDEO_ADAPTER, P_TRANSLATE(P_VIDEO_ADAPTER), OBS_COMBO_TYPE_LIST,
-								OBS_COMBO_FORMAT_INT);
+	p = obs_properties_add_list(props, P_VIDEO_ADAPTER, P_TRANSLATE(P_VIDEO_ADAPTER), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_VIDEO_ADAPTER)));
 	obs_property_set_modified_callback(p, properties_modified);
 #pragma endregion Video Adapters
 
 #pragma region OpenCL
-	p = obs_properties_add_list(props, P_OPENCL_TRANSFER, P_TRANSLATE(P_OPENCL_TRANSFER), OBS_COMBO_TYPE_LIST,
-								OBS_COMBO_FORMAT_INT);
+	p = obs_properties_add_list(props, P_OPENCL_TRANSFER, P_TRANSLATE(P_OPENCL_TRANSFER), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_OPENCL_TRANSFER)));
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_DISABLED), 0);
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_ENABLED), 1);
 
-	p = obs_properties_add_list(props, P_OPENCL_CONVERSION, P_TRANSLATE(P_OPENCL_CONVERSION), OBS_COMBO_TYPE_LIST,
-								OBS_COMBO_FORMAT_INT);
+	p = obs_properties_add_list(props, P_OPENCL_CONVERSION, P_TRANSLATE(P_OPENCL_CONVERSION), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_OPENCL_CONVERSION)));
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_DISABLED), 0);
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_ENABLED), 1);
 #pragma endregion OpenCL
 
 #pragma region Asynchronous Queue
-	p = obs_properties_add_list(props, P_MULTITHREADING, P_TRANSLATE(P_MULTITHREADING), OBS_COMBO_TYPE_LIST,
-								OBS_COMBO_FORMAT_INT);
+	p = obs_properties_add_list(props, P_MULTITHREADING, P_TRANSLATE(P_MULTITHREADING), OBS_COMBO_TYPE_LIST, OBS_COMBO_FORMAT_INT);
 	obs_property_set_long_description(p, P_TRANSLATE(P_DESC(P_MULTITHREADING)));
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_DISABLED), 0);
 	obs_property_list_add_int(p, P_TRANSLATE(P_UTIL_SWITCH_ENABLED), 1);
@@ -500,7 +472,7 @@ try {
 	obs_properties_set_param(props, data, nullptr);
 
 	return props;
-} catch (const std::exception& ex) {
+} catch (const std::exception &ex) {
 	PLOG_ERROR("Unexpected exception in %s: %s", __FUNCTION_NAME__, ex.what());
 	return nullptr;
 } catch (...) {
@@ -508,7 +480,7 @@ try {
 	return nullptr;
 }
 
-static void obs_data_transfer_settings(obs_data_t* data)
+static void obs_data_transfer_settings(obs_data_t *data)
 {
 #define TRANSFER_STRING(xold, xnew) obs_data_set_string(data, xnew, obs_data_get_string(data, xold))
 #define TRANSFER_FLOAT(xold, xnew) obs_data_set_double(data, xnew, obs_data_get_double(data, xold))
@@ -517,12 +489,9 @@ static void obs_data_transfer_settings(obs_data_t* data)
 
 	uint64_t version = obs_data_get_int(data, P_VERSION);
 	switch (version) {
-	case (((uint64_t)(1 & 0xFFFF) << 48ull) | ((uint64_t)(4 & 0xFFFF) << 32ull) | ((uint64_t)(3 & 0xFFFF) << 16ull)
-		  | ((uint64_t)(5) & 0xFFFF)):
-		obs_data_set_double(data, "AMF.H264.VBVBuffer.Strictness",
-							obs_data_get_double(data, "AMF.H264.VBVBuffer.Strictness") + 50.0);
-	case (((uint64_t)(1 & 0xFFFF) << 48ull) | ((uint64_t)(4 & 0xFFFF) << 32ull) | ((uint64_t)(3 & 0xFFFF) << 16ull)
-		  | ((uint64_t)(8) & 0xFFFF)):
+	case (((uint64_t)(1 & 0xFFFF) << 48ull) | ((uint64_t)(4 & 0xFFFF) << 32ull) | ((uint64_t)(3 & 0xFFFF) << 16ull) | ((uint64_t)(5) & 0xFFFF)):
+		obs_data_set_double(data, "AMF.H264.VBVBuffer.Strictness", obs_data_get_double(data, "AMF.H264.VBVBuffer.Strictness") + 50.0);
+	case (((uint64_t)(1 & 0xFFFF) << 48ull) | ((uint64_t)(4 & 0xFFFF) << 32ull) | ((uint64_t)(3 & 0xFFFF) << 16ull) | ((uint64_t)(8) & 0xFFFF)):
 		TRANSFER_INT("AMF.H264.Preset", P_PRESET);
 
 		// Static
@@ -585,19 +554,17 @@ static void obs_data_transfer_settings(obs_data_t* data)
 	obs_data_set_int(data, P_VERSION, PLUGIN_VERSION_FULL);
 }
 
-bool Plugin::Interface::H264Interface::properties_modified(obs_properties_t* props, obs_property_t*,
-														   obs_data_t*       data) noexcept
+bool Plugin::Interface::H264Interface::properties_modified(obs_properties_t *props, obs_property_t *, obs_data_t *data) noexcept
 try {
-	bool            result = false;
-	obs_property_t* p;
+	bool result = false;
+	obs_property_t *p;
 
 	// Transfer settings from older Plugin versions to newer ones.
 	obs_data_transfer_settings(data);
 
-#pragma region Video API& Adapter
+#pragma region Video API &Adapter
 	// Video API
-	const char *videoAPI_last = obs_data_get_string(data, ("last" P_VIDEO_API)),
-			   *videoAPI_cur  = obs_data_get_string(data, P_VIDEO_API);
+	const char *videoAPI_last = obs_data_get_string(data, ("last" P_VIDEO_API)), *videoAPI_cur = obs_data_get_string(data, P_VIDEO_API);
 	if (strlen(videoAPI_cur) == 0) {
 		p = obs_properties_get(props, P_VIDEO_API);
 		obs_data_set_string(data, P_VIDEO_API, obs_property_list_item_string(p, 0));
@@ -612,53 +579,51 @@ try {
 		result = true;
 
 		// Reset Video Adapter to first in list.
-		obs_data_set_int(data, P_VIDEO_ADAPTER,
-						 obs_property_list_item_int(obs_properties_get(props, P_VIDEO_ADAPTER), 0));
+		obs_data_set_int(data, P_VIDEO_ADAPTER, obs_property_list_item_int(obs_properties_get(props, P_VIDEO_ADAPTER), 0));
 	}
 
 	// Video Adapter
-	int64_t videoAdapter_last = obs_data_get_int(data, ("last" P_VIDEO_ADAPTER)),
-			videoAdapter_cur  = obs_data_get_int(data, P_VIDEO_ADAPTER);
+	int64_t videoAdapter_last = obs_data_get_int(data, ("last" P_VIDEO_ADAPTER)), videoAdapter_cur = obs_data_get_int(data, P_VIDEO_ADAPTER);
 	if (videoAdapter_last != videoAdapter_cur) {
 		obs_data_set_int(data, ("last" P_VIDEO_ADAPTER), videoAdapter_cur);
 		result = true;
 
 		auto api = Plugin::API::GetAPI(obs_data_get_string(data, P_VIDEO_API));
 		union {
-			int64_t  v;
+			int64_t v;
 			uint32_t id[2];
-		} adapterid  = {videoAdapter_cur};
+		} adapterid = {videoAdapter_cur};
 		auto adapter = api->GetAdapterById(adapterid.id[0], adapterid.id[1]);
 		try {
 			auto enc = EncoderH264(api, adapter);
 
-#define TEMP_LIMIT_DROPDOWN(func, enm, prop)                                             \
-	{                                                                                    \
-		auto tmp_p = obs_properties_get(props, prop);                                    \
-		auto tmp_l = enc.func();                                                         \
-		enm  tmp_s = static_cast<enm>(obs_data_get_int(data, obs_property_name(tmp_p))); \
-		for (size_t idx = 0; idx < obs_property_list_item_count(tmp_p); idx++) {         \
-			bool enabled = false;                                                        \
-			enm  tmp_v   = static_cast<enm>(obs_property_list_item_int(tmp_p, idx));     \
-			for (auto tmp_k : tmp_l) {                                                   \
-				if (tmp_k == tmp_v) {                                                    \
-					enabled = true;                                                      \
-					break;                                                               \
-				}                                                                        \
-			}                                                                            \
-			obs_property_list_item_disable(tmp_p, idx, !enabled);                        \
-			if ((enabled == false) && (tmp_s == tmp_v))                                  \
-				obs_data_unset_user_value(data, obs_property_name(tmp_p));               \
-		}                                                                                \
+#define TEMP_LIMIT_DROPDOWN(func, enm, prop)                                                    \
+	{                                                                                       \
+		auto tmp_p = obs_properties_get(props, prop);                                   \
+		auto tmp_l = enc.func();                                                        \
+		enm tmp_s = static_cast<enm>(obs_data_get_int(data, obs_property_name(tmp_p))); \
+		for (size_t idx = 0; idx < obs_property_list_item_count(tmp_p); idx++) {        \
+			bool enabled = false;                                                   \
+			enm tmp_v = static_cast<enm>(obs_property_list_item_int(tmp_p, idx));   \
+			for (auto tmp_k : tmp_l) {                                              \
+				if (tmp_k == tmp_v) {                                           \
+					enabled = true;                                         \
+					break;                                                  \
+				}                                                               \
+			}                                                                       \
+			obs_property_list_item_disable(tmp_p, idx, !enabled);                   \
+			if ((enabled == false) && (tmp_s == tmp_v))                             \
+				obs_data_unset_user_value(data, obs_property_name(tmp_p));      \
+		}                                                                               \
 	}
-#define TEMP_LIMIT_SLIDER(func, prop)                                               \
-	{                                                                               \
+#define TEMP_LIMIT_SLIDER(func, prop)                                                       \
+	{                                                                                   \
 		auto tmp_p = obs_properties_get(props, prop);                               \
 		auto tmp_l = enc.func();                                                    \
 		obs_property_int_set_limits(tmp_p, (int)tmp_l.first, (int)tmp_l.second, 1); \
 	}
-#define TEMP_LIMIT_SLIDER_BITRATE(func, prop)                                                     \
-	{                                                                                             \
+#define TEMP_LIMIT_SLIDER_BITRATE(func, prop)                                                             \
+	{                                                                                                 \
 		auto tmp_p = obs_properties_get(props, prop);                                             \
 		auto tmp_l = enc.func();                                                                  \
 		obs_property_int_set_limits(tmp_p, (int)tmp_l.first / 1000, (int)tmp_l.second / 1000, 1); \
@@ -686,24 +651,23 @@ try {
 			TEMP_LIMIT_SLIDER_BITRATE(CapsPeakBitrate, P_BITRATE_PEAK);
 			TEMP_LIMIT_SLIDER_BITRATE(CapsVBVBufferSize, P_VBVBUFFER_SIZE);
 			{
-				auto bframep    = obs_properties_get(props, P_BFRAME_PATTERN);
+				auto bframep = obs_properties_get(props, P_BFRAME_PATTERN);
 				auto bframecaps = enc.CapsBFramePattern();
 				obs_property_int_set_limits(bframep, 0, (int)bframecaps, 1);
 				if (obs_data_get_int(data, obs_property_name(bframep)) > bframecaps) {
 					obs_data_set_int(data, obs_property_name(bframep), bframecaps);
 				}
 			}
-		} catch (const std::exception& e) {
+		} catch (const std::exception &e) {
 			PLOG_ERROR("Exception occurred while updating capabilities: %s", e.what());
 		}
 	}
-#pragma endregion Video API& Adapter
+#pragma endregion Video API &Adapter
 
 #pragma region Presets
-	Presets lastPreset = static_cast<Presets>(obs_data_get_int(data, ("last" P_PRESET))),
-			preset     = static_cast<Presets>(obs_data_get_int(data, P_PRESET));
+	Presets lastPreset = static_cast<Presets>(obs_data_get_int(data, ("last" P_PRESET))), preset = static_cast<Presets>(obs_data_get_int(data, P_PRESET));
 	if (lastPreset != preset) { // Reset State
-		obs_property_t* pn = obs_properties_first(props);
+		obs_property_t *pn = obs_properties_first(props);
 		do {
 			obs_property_set_enabled(pn, true);
 		} while (obs_property_next(&pn));
@@ -717,9 +681,9 @@ try {
 	case Presets::ResetToDefaults:
 #pragma region Default
 	{
-		obs_property_t* pn = obs_properties_first(props);
+		obs_property_t *pn = obs_properties_first(props);
 		do {
-			const char* name = obs_property_name(pn);
+			const char *name = obs_property_name(pn);
 
 			// Do not reset Video Adapter or API.
 			if ((strcmp(name, P_VIDEO_API) == 0) || (strcmp(name, P_VIDEO_ADAPTER) == 0))
@@ -767,8 +731,7 @@ try {
 		obs_property_set_enabled(obs_properties_get(props, P_PROFILELEVEL), false);
 
 		// Rate Control Properties
-		obs_data_set_int(data, P_RATECONTROLMETHOD,
-						 static_cast<int32_t>(RateControlMethod::LatencyConstrainedVariableBitrate));
+		obs_data_set_int(data, P_RATECONTROLMETHOD, static_cast<int32_t>(RateControlMethod::LatencyConstrainedVariableBitrate));
 		obs_property_set_enabled(obs_properties_get(props, P_RATECONTROLMETHOD), false);
 		if (obs_data_get_int(data, "bitrate") < 10000)
 			obs_data_set_int(data, "bitrate", 10000);
@@ -943,14 +906,13 @@ try {
 #pragma endregion Presets
 
 #pragma region View Mode
-	ViewMode lastView = static_cast<ViewMode>(obs_data_get_int(data, ("last" P_VIEW))),
-			 curView  = static_cast<ViewMode>(obs_data_get_int(data, P_VIEW));
+	ViewMode lastView = static_cast<ViewMode>(obs_data_get_int(data, ("last" P_VIEW))), curView = static_cast<ViewMode>(obs_data_get_int(data, P_VIEW));
 	if (lastView != curView) {
 		obs_data_set_int(data, ("last" P_VIEW), static_cast<int32_t>(curView));
 		result = true;
 	}
 
-	std::vector<std::pair<const char*, ViewMode>> viewstuff = {
+	std::vector<std::pair<const char *, ViewMode>> viewstuff = {
 		std::make_pair(P_PRESET, ViewMode::Basic),
 		// ----------- Static Section
 		//std::make_pair(P_USAGE, ViewMode::Master),
@@ -1009,8 +971,8 @@ try {
 		std::make_pair(P_VIEW, ViewMode::Basic),
 		std::make_pair(P_DEBUG, ViewMode::Basic),
 	};
-	for (std::pair<const char*, ViewMode> kv : viewstuff) {
-		bool vis  = curView >= kv.second;
+	for (std::pair<const char *, ViewMode> kv : viewstuff) {
+		bool vis = curView >= kv.second;
 		auto visp = obs_properties_get(props, kv.first);
 		if (visp != nullptr) {
 			obs_property_set_visible(visp, vis);
@@ -1021,16 +983,15 @@ try {
 
 	// Special Logic
 #pragma region B - Frames
-	auto bframeProperty  = obs_properties_get(props, P_BFRAME_PATTERN);
+	auto bframeProperty = obs_properties_get(props, P_BFRAME_PATTERN);
 	bool bframeSupported = obs_property_int_max(bframeProperty) > 0;
-	bool bframeVisible   = (curView >= ViewMode::Advanced) && bframeSupported;
+	bool bframeVisible = (curView >= ViewMode::Advanced) && bframeSupported;
 
 	/// Pattern
 	obs_property_set_visible(bframeProperty, (curView >= ViewMode::Advanced) && bframeSupported);
 	if (!bframeVisible)
 		obs_data_unset_user_value(data, P_BFRAME_PATTERN);
-	bool lastUsingBFrames = obs_data_get_int(data, ("last" P_BFRAME_PATTERN)) != 0,
-		 usingBFrames     = obs_data_get_int(data, P_BFRAME_PATTERN) != 0;
+	bool lastUsingBFrames = obs_data_get_int(data, ("last" P_BFRAME_PATTERN)) != 0, usingBFrames = obs_data_get_int(data, P_BFRAME_PATTERN) != 0;
 	if (usingBFrames != lastUsingBFrames) {
 		obs_data_set_int(data, ("last" P_BFRAME_PATTERN), obs_data_get_int(data, P_BFRAME_PATTERN));
 		result = true;
@@ -1041,8 +1002,7 @@ try {
 	obs_property_set_visible(obs_properties_get(props, P_BFRAME_REFERENCE), bframeReferenceVisible);
 	if (!bframeReferenceVisible)
 		obs_data_unset_user_value(data, P_BFRAME_REFERENCE);
-	bool lastUsingBFrameReference = obs_data_get_int(data, ("last" P_BFRAME_REFERENCE)) != 0,
-		 usingBFrameReference     = obs_data_get_int(data, P_BFRAME_REFERENCE) == 1;
+	bool lastUsingBFrameReference = obs_data_get_int(data, ("last" P_BFRAME_REFERENCE)) != 0, usingBFrameReference = obs_data_get_int(data, P_BFRAME_REFERENCE) == 1;
 	if (usingBFrameReference != lastUsingBFrameReference) {
 		obs_data_set_int(data, ("last" P_BFRAME_REFERENCE), obs_data_get_int(data, P_BFRAME_REFERENCE));
 		result = true;
@@ -1052,38 +1012,36 @@ try {
 	obs_property_set_visible(obs_properties_get(props, P_BFRAME_DELTAQP), bframeVisible && usingBFrames);
 	if (!bframeVisible || !usingBFrames)
 		obs_data_unset_user_value(data, P_BFRAME_DELTAQP);
-	obs_property_set_visible(obs_properties_get(props, P_BFRAME_REFERENCEDELTAQP),
-							 bframeVisible && usingBFrames && usingBFrameReference);
+	obs_property_set_visible(obs_properties_get(props, P_BFRAME_REFERENCEDELTAQP), bframeVisible && usingBFrames && usingBFrameReference);
 	if (!bframeVisible || !usingBFrames || !usingBFrameReference)
 		obs_data_unset_user_value(data, P_BFRAME_REFERENCEDELTAQP);
 #pragma endregion B - Frames
 
 #pragma region Rate Control
-	bool vis_rcm_bitrate_target = false, vis_rcm_bitrate_peak = false, vis_rcm_qp = false, vis_rcm_qp_b = false,
-		 vis_rcm_fillerdata = false;
+	bool vis_rcm_bitrate_target = false, vis_rcm_bitrate_peak = false, vis_rcm_qp = false, vis_rcm_qp_b = false, vis_rcm_fillerdata = false;
 
 	RateControlMethod lastRCM = static_cast<RateControlMethod>(obs_data_get_int(data, ("last" P_RATECONTROLMETHOD))),
-					  curRCM  = static_cast<RateControlMethod>(obs_data_get_int(data, P_RATECONTROLMETHOD));
+			  curRCM = static_cast<RateControlMethod>(obs_data_get_int(data, P_RATECONTROLMETHOD));
 	if (lastRCM != curRCM) {
 		obs_data_set_int(data, ("last" P_RATECONTROLMETHOD), static_cast<int32_t>(curRCM));
 		result = true;
 	}
 	switch (curRCM) {
 	case RateControlMethod::ConstantQP:
-		vis_rcm_qp   = true;
+		vis_rcm_qp = true;
 		vis_rcm_qp_b = bframeSupported && usingBFrames;
 		break;
 	case RateControlMethod::ConstantBitrate:
 		vis_rcm_bitrate_target = true;
-		vis_rcm_fillerdata     = true;
+		vis_rcm_fillerdata = true;
 		break;
 	case RateControlMethod::PeakConstrainedVariableBitrate:
 		vis_rcm_bitrate_target = true;
-		vis_rcm_bitrate_peak   = true;
+		vis_rcm_bitrate_peak = true;
 		break;
 	case RateControlMethod::LatencyConstrainedVariableBitrate:
 		vis_rcm_bitrate_target = true;
-		vis_rcm_bitrate_peak   = true;
+		vis_rcm_bitrate_peak = true;
 		break;
 	}
 
@@ -1131,8 +1089,8 @@ try {
 #pragma endregion Rate Control
 
 #pragma region VBV Buffer
-	uint32_t vbvBufferMode    = static_cast<uint32_t>(obs_data_get_int(data, P_VBVBUFFER));
-	bool     vbvBufferVisible = (curView >= ViewMode::Advanced);
+	uint32_t vbvBufferMode = static_cast<uint32_t>(obs_data_get_int(data, P_VBVBUFFER));
+	bool vbvBufferVisible = (curView >= ViewMode::Advanced);
 
 	uint32_t lastVBVBufferMode = static_cast<uint32_t>(obs_data_get_int(data, ("last" P_VBVBUFFER)));
 	if (lastVBVBufferMode != vbvBufferMode) {
@@ -1140,8 +1098,7 @@ try {
 		result = true;
 	}
 
-	obs_property_set_visible(obs_properties_get(props, P_VBVBUFFER_STRICTNESS),
-							 vbvBufferVisible && (vbvBufferMode == 0));
+	obs_property_set_visible(obs_properties_get(props, P_VBVBUFFER_STRICTNESS), vbvBufferVisible && (vbvBufferMode == 0));
 	obs_property_set_visible(obs_properties_get(props, P_VBVBUFFER_SIZE), vbvBufferVisible && (vbvBufferMode == 1));
 	if (!vbvBufferVisible || vbvBufferMode == 0)
 		obs_data_unset_user_value(data, P_VBVBUFFER_SIZE);
@@ -1158,12 +1115,12 @@ try {
 		obs_data_unset_user_value(data, P_INTERVAL_BFRAME);
 	}
 #pragma endregion B - Frame Interval
-#pragma endregion View      Mode
+#pragma endregion View Mode
 
 	// Permanently disable static properties while encoding.
-	void* enc = obs_properties_get_param(props);
+	void *enc = obs_properties_get_param(props);
 	if (enc) {
-		std::vector<const char*> hiddenProperties = {
+		std::vector<const char *> hiddenProperties = {
 			// Static
 			///P_USAGE,
 			P_QUALITYPRESET,
@@ -1212,13 +1169,13 @@ try {
 			P_QUEUESIZE,
 			P_DEBUG,
 		};
-		for (const char* pr : hiddenProperties) {
+		for (const char *pr : hiddenProperties) {
 			obs_property_set_enabled(obs_properties_get(props, pr), false);
 		}
 	}
 
 	return result;
-} catch (const std::exception& ex) {
+} catch (const std::exception &ex) {
 	PLOG_ERROR("Unexpected exception in %s: %s", __FUNCTION_NAME__, ex.what());
 	return false;
 } catch (...) {
@@ -1226,12 +1183,12 @@ try {
 	return false;
 }
 
-bool Plugin::Interface::H264Interface::update(void* data, obs_data_t* settings) noexcept
+bool Plugin::Interface::H264Interface::update(void *data, obs_data_t *settings) noexcept
 try {
 	if (data)
-		return static_cast<Plugin::Interface::H264Interface*>(data)->update(settings);
+		return static_cast<Plugin::Interface::H264Interface *>(data)->update(settings);
 	return false;
-} catch (const std::exception& ex) {
+} catch (const std::exception &ex) {
 	PLOG_ERROR("Unexpected exception in %s: %s", __FUNCTION_NAME__, ex.what());
 	return false;
 } catch (...) {
@@ -1239,22 +1196,22 @@ try {
 	return false;
 }
 
-void Plugin::Interface::H264Interface::get_video_info(void* data, struct video_scale_info* info) noexcept
+void Plugin::Interface::H264Interface::get_video_info(void *data, struct video_scale_info *info) noexcept
 try {
 	if (data)
-		return static_cast<Plugin::Interface::H264Interface*>(data)->get_video_info(info);
-} catch (const std::exception& ex) {
+		return static_cast<Plugin::Interface::H264Interface *>(data)->get_video_info(info);
+} catch (const std::exception &ex) {
 	PLOG_ERROR("Unexpected exception in %s: %s", __FUNCTION_NAME__, ex.what());
 } catch (...) {
 	PLOG_ERROR("Unexpected unknown exception in %s.", __FUNCTION_NAME__);
 }
 
-bool Plugin::Interface::H264Interface::get_extra_data(void* data, uint8_t** extra_data, size_t* size) noexcept
+bool Plugin::Interface::H264Interface::get_extra_data(void *data, uint8_t **extra_data, size_t *size) noexcept
 try {
 	if (data)
-		return static_cast<Plugin::Interface::H264Interface*>(data)->get_extra_data(extra_data, size);
+		return static_cast<Plugin::Interface::H264Interface *>(data)->get_extra_data(extra_data, size);
 	return false;
-} catch (const std::exception& ex) {
+} catch (const std::exception &ex) {
 	PLOG_ERROR("Unexpected exception in %s: %s", __FUNCTION_NAME__, ex.what());
 	return false;
 } catch (...) {
@@ -1265,19 +1222,19 @@ try {
 //////////////////////////////////////////////////////////////////////////
 // Module Code
 //////////////////////////////////////////////////////////////////////////
-Plugin::Interface::H264Interface::H264Interface(obs_data_t* data, obs_encoder_t* encoder)
+Plugin::Interface::H264Interface::H264Interface(obs_data_t *data, obs_encoder_t *encoder)
 {
 	PLOG_DEBUG("<%s> Initializing...", __FUNCTION_NAME__);
 
 	m_Encoder = encoder;
 
 	// OBS Settings
-	uint32_t                        obsWidth     = obs_encoder_get_width(encoder);
-	uint32_t                        obsHeight    = obs_encoder_get_height(encoder);
-	video_t*                        obsVideoInfo = obs_encoder_video(encoder);
-	const struct video_output_info* voi          = video_output_get_info(obsVideoInfo);
-	uint32_t                        obsFPSnum    = voi->fps_num;
-	uint32_t                        obsFPSden    = voi->fps_den;
+	uint32_t obsWidth = obs_encoder_get_width(encoder);
+	uint32_t obsHeight = obs_encoder_get_height(encoder);
+	video_t *obsVideoInfo = obs_encoder_video(encoder);
+	const struct video_output_info *voi = video_output_get_info(obsVideoInfo);
+	uint32_t obsFPSnum = voi->fps_num;
+	uint32_t obsFPSden = voi->fps_den;
 
 	//////////////////////////////////////////////////////////////////////////
 	/// Initialize Encoder
@@ -1321,15 +1278,14 @@ Plugin::Interface::H264Interface::H264Interface(obs_data_t* data, obs_encoder_t*
 
 	auto api = API::GetAPI(obs_data_get_string(data, P_VIDEO_API));
 	union {
-		int64_t  v;
+		int64_t v;
 		uint32_t id[2];
-	} adapterid  = {obs_data_get_int(data, P_VIDEO_ADAPTER)};
+	} adapterid = {obs_data_get_int(data, P_VIDEO_ADAPTER)};
 	auto adapter = api->GetAdapterById(adapterid.id[0], adapterid.id[1]);
 
-	m_VideoEncoder = std::make_unique<EncoderH264>(
-		api, adapter, !!obs_data_get_int(data, P_OPENCL_TRANSFER), !!obs_data_get_int(data, P_OPENCL_CONVERSION),
-		colorFormat, colorSpace, voi->range == VIDEO_RANGE_FULL, !!obs_data_get_int(data, P_MULTITHREADING),
-		(size_t)obs_data_get_int(data, P_QUEUESIZE));
+	m_VideoEncoder = std::make_unique<EncoderH264>(api, adapter, !!obs_data_get_int(data, P_OPENCL_TRANSFER), !!obs_data_get_int(data, P_OPENCL_CONVERSION), colorFormat,
+						       colorSpace, voi->range == VIDEO_RANGE_FULL, !!obs_data_get_int(data, P_MULTITHREADING),
+						       (size_t)obs_data_get_int(data, P_QUEUESIZE));
 
 	/// Static Properties
 	m_VideoEncoder->SetUsage(Plugin::AMD::Usage::Transcoding);
@@ -1341,8 +1297,8 @@ Plugin::Interface::H264Interface::H264Interface(obs_data_t* data, obs_encoder_t*
 
 	/// Profile & Level
 	m_VideoEncoder->SetProfile(static_cast<Profile>(obs_data_get_int(data, P_PROFILE)));
-	m_VideoEncoder->SetProfileLevel(static_cast<ProfileLevel>(obs_data_get_int(data, P_PROFILELEVEL)),
-									std::make_pair(obsWidth, obsHeight), std::make_pair(obsFPSnum, obsFPSden));
+	m_VideoEncoder->SetProfileLevel(static_cast<ProfileLevel>(obs_data_get_int(data, P_PROFILELEVEL)), std::make_pair(obsWidth, obsHeight),
+					std::make_pair(obsFPSnum, obsFPSden));
 
 	try {
 		m_VideoEncoder->SetCodingType(static_cast<CodingType>(obs_data_get_int(data, P_CODINGTYPE)));
@@ -1357,7 +1313,7 @@ Plugin::Interface::H264Interface::H264Interface(obs_data_t* data, obs_encoder_t*
 #pragma region OBS - Enforce Streaming Service Restrictions
 	{
 		// Profile
-		const char* p_str = obs_data_get_string(data, "profile");
+		const char *p_str = obs_data_get_string(data, "profile");
 		if (strcmp(p_str, "") != 0) {
 			if (strcmp(p_str, "constrained_baseline") == 0) {
 				m_VideoEncoder->SetProfile(Profile::ConstrainedBaseline);
@@ -1374,7 +1330,7 @@ Plugin::Interface::H264Interface::H264Interface(obs_data_t* data, obs_encoder_t*
 		}
 
 		// Preset
-		const char* preset = obs_data_get_string(data, "preset");
+		const char *preset = obs_data_get_string(data, "preset");
 		if (strcmp(preset, "") != 0) {
 			if (strcmp(preset, "speed") == 0) {
 				m_VideoEncoder->SetQualityPreset(QualityPreset::Speed);
@@ -1415,12 +1371,12 @@ Plugin::Interface::H264Interface::~H264Interface()
 	PLOG_DEBUG("<%s> Complete.", __FUNCTION_NAME__);
 }
 
-bool Plugin::Interface::H264Interface::update(obs_data_t* data)
+bool Plugin::Interface::H264Interface::update(obs_data_t *data)
 {
-	const video_t*                  obsVideoInfo = obs_encoder_video(m_Encoder);
-	const struct video_output_info* voi          = video_output_get_info(obsVideoInfo);
-	uint32_t                        obsFPSnum    = voi->fps_num;
-	uint32_t                        obsFPSden    = voi->fps_den;
+	const video_t *obsVideoInfo = obs_encoder_video(m_Encoder);
+	const struct video_output_info *voi = video_output_get_info(obsVideoInfo);
+	uint32_t obsFPSnum = voi->fps_num;
+	uint32_t obsFPSden = voi->fps_den;
 
 	// Rate Control
 	RateControlMethod rcm = static_cast<RateControlMethod>(obs_data_get_int(data, P_RATECONTROLMETHOD));
@@ -1487,24 +1443,24 @@ bool Plugin::Interface::H264Interface::update(obs_data_t* data)
 		uint32_t idrperiod = static_cast<uint32_t>(obs_data_get_int(data, P_PERIOD_IDR_H264));
 		if (idrperiod == 0) {
 			double_t keyinterv = obs_data_get_double(data, P_INTERVAL_KEYFRAME);
-			idrperiod          = static_cast<uint32_t>(ceil((keyinterv * framerate)));
+			idrperiod = static_cast<uint32_t>(ceil((keyinterv * framerate)));
 		}
 		m_VideoEncoder->SetIDRPeriod(idrperiod);
 	}
 	/// I/P/Skip Frame Interval/Period
 	{
 		uint32_t period = static_cast<uint32_t>(obs_data_get_double(data, P_INTERVAL_IFRAME) * framerate);
-		period          = max(period, static_cast<uint32_t>(obs_data_get_int(data, P_PERIOD_IFRAME)));
+		period = max(period, static_cast<uint32_t>(obs_data_get_int(data, P_PERIOD_IFRAME)));
 		m_VideoEncoder->SetIFramePeriod(period);
 	}
 	{
 		uint32_t period = static_cast<uint32_t>(obs_data_get_double(data, P_INTERVAL_PFRAME) * framerate);
-		period          = max(period, static_cast<uint32_t>(obs_data_get_int(data, P_PERIOD_PFRAME)));
+		period = max(period, static_cast<uint32_t>(obs_data_get_int(data, P_PERIOD_PFRAME)));
 		m_VideoEncoder->SetPFramePeriod(period);
 	}
 	{
 		uint32_t period = static_cast<uint32_t>(obs_data_get_double(data, P_INTERVAL_BFRAME) * framerate);
-		period          = max(period, static_cast<uint32_t>(obs_data_get_int(data, P_PERIOD_BFRAME)));
+		period = max(period, static_cast<uint32_t>(obs_data_get_int(data, P_PERIOD_BFRAME)));
 		m_VideoEncoder->SetBFramePeriod(period);
 	}
 	{
@@ -1522,8 +1478,7 @@ bool Plugin::Interface::H264Interface::update(obs_data_t* data)
 				m_VideoEncoder->SetBFrameDeltaQP(static_cast<int8_t>(obs_data_get_int(data, P_BFRAME_DELTAQP)));
 			m_VideoEncoder->SetBFrameReferenceEnabled(!!obs_data_get_int(data, P_BFRAME_REFERENCE));
 			if (!!obs_data_get_int(data, P_BFRAME_REFERENCE))
-				m_VideoEncoder->SetBFrameReferenceDeltaQP(
-					static_cast<int8_t>(obs_data_get_int(data, P_BFRAME_REFERENCEDELTAQP)));
+				m_VideoEncoder->SetBFrameReferenceDeltaQP(static_cast<int8_t>(obs_data_get_int(data, P_BFRAME_REFERENCEDELTAQP)));
 		} catch (...) {
 		}
 	}
@@ -1536,7 +1491,7 @@ bool Plugin::Interface::H264Interface::update(obs_data_t* data)
 #pragma region OBS Enforce Streaming Service Settings
 	{
 		// Rate Control Method
-		const char* t_str = obs_data_get_string(data, "rate_control");
+		const char *t_str = obs_data_get_string(data, "rate_control");
 		if (strcmp(t_str, "") != 0) {
 			if (strcmp(t_str, "CBR") == 0) {
 				m_VideoEncoder->SetRateControlMethod(RateControlMethod::ConstantBitrate);
@@ -1557,14 +1512,11 @@ bool Plugin::Interface::H264Interface::update(obs_data_t* data)
 		uint32_t fpsNum = m_VideoEncoder->GetFrameRate().first;
 		uint32_t fpsDen = m_VideoEncoder->GetFrameRate().second;
 		if (obs_data_get_int(data, "keyint_sec") > 0) {
-			m_VideoEncoder->SetIDRPeriod(
-				static_cast<uint32_t>(obs_data_get_int(data, "keyint_sec")
-									  * (static_cast<double_t>(fpsNum) / static_cast<double_t>(fpsDen))));
+			m_VideoEncoder->SetIDRPeriod(static_cast<uint32_t>(obs_data_get_int(data, "keyint_sec") * (static_cast<double_t>(fpsNum) / static_cast<double_t>(fpsDen))));
 
 			obs_data_set_double(data, P_INTERVAL_KEYFRAME, static_cast<double_t>(obs_data_get_int(data, "keyint_sec")));
 			obs_data_set_int(data, P_PERIOD_IDR_H264,
-							 static_cast<uint32_t>(obs_data_get_int(data, "keyint_sec")
-												   * (static_cast<double_t>(fpsNum) / static_cast<double_t>(fpsDen))));
+					 static_cast<uint32_t>(obs_data_get_int(data, "keyint_sec") * (static_cast<double_t>(fpsNum) / static_cast<double_t>(fpsDen))));
 			obs_data_unset_user_value(data, "keyint_sec");
 		}
 	}
@@ -1575,16 +1527,14 @@ bool Plugin::Interface::H264Interface::update(obs_data_t* data)
 	if (m_VideoEncoder->IsStarted()) {
 		m_VideoEncoder->LogProperties();
 		if (static_cast<ViewMode>(obs_data_get_int(data, P_VIEW)) >= ViewMode::Master)
-			PLOG_ERROR(
-				"View Mode 'Master' is active, avoid giving anything but basic support. Error is most likely caused by "
-				"user settings themselves.");
+			PLOG_ERROR("View Mode 'Master' is active, avoid giving anything but basic support. Error is most likely caused by "
+				   "user settings themselves.");
 	}
 
 	return true;
 }
 
-bool Plugin::Interface::H264Interface::encode(struct encoder_frame* frame, struct encoder_packet* packet,
-											  bool* received_packet)
+bool Plugin::Interface::H264Interface::encode(struct encoder_frame *frame, struct encoder_packet *packet, bool *received_packet)
 {
 	if (!frame || !packet || !received_packet)
 		return false;
@@ -1602,12 +1552,12 @@ bool Plugin::Interface::H264Interface::encode(struct encoder_frame* frame, struc
 	return retVal;
 }
 
-void Plugin::Interface::H264Interface::get_video_info(struct video_scale_info* info)
+void Plugin::Interface::H264Interface::get_video_info(struct video_scale_info *info)
 {
 	m_VideoEncoder->GetVideoInfo(info);
 }
 
-bool Plugin::Interface::H264Interface::get_extra_data(uint8_t** extra_data, size_t* size)
+bool Plugin::Interface::H264Interface::get_extra_data(uint8_t **extra_data, size_t *size)
 {
 	return m_VideoEncoder->GetExtraData(extra_data, size);
 }

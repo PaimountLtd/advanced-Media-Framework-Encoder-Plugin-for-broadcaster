@@ -22,42 +22,41 @@
 #include "plugin.hpp"
 
 namespace Plugin {
-	namespace Interface {
-		class H265Interface {
-			public:
-			static void              encoder_register();
-			static const char*       get_name(void* type_data) noexcept;
-			static void              get_defaults(obs_data_t* data) noexcept;
-			static obs_properties_t* get_properties(void* ptr) noexcept;
+namespace Interface {
+class H265Interface {
+public:
+	static void encoder_register();
+	static const char *get_name(void *type_data) noexcept;
+	static void get_defaults(obs_data_t *data) noexcept;
+	static obs_properties_t *get_properties(void *ptr) noexcept;
 
-			static bool properties_modified(obs_properties_t* props, obs_property_t*, obs_data_t* data) noexcept;
+	static bool properties_modified(obs_properties_t *props, obs_property_t *, obs_data_t *data) noexcept;
 
-			static void* create(obs_data_t* settings, obs_encoder_t* encoder) noexcept;
-			static void  destroy(void* ptr) noexcept;
-			static bool  update(void* ptr, obs_data_t* data) noexcept;
-			static bool  encode(void* ptr, struct encoder_frame* frame, struct encoder_packet* packet,
-								bool* received_packet) noexcept;
-			static void  get_video_info(void* ptr, struct video_scale_info* info) noexcept;
-			static bool  get_extra_data(void* ptr, uint8_t** extra_data, size_t* size) noexcept;
+	static void *create(obs_data_t *settings, obs_encoder_t *encoder) noexcept;
+	static void destroy(void *ptr) noexcept;
+	static bool update(void *ptr, obs_data_t *data) noexcept;
+	static bool encode(void *ptr, struct encoder_frame *frame, struct encoder_packet *packet, bool *received_packet) noexcept;
+	static void get_video_info(void *ptr, struct video_scale_info *info) noexcept;
+	static bool get_extra_data(void *ptr, uint8_t **extra_data, size_t *size) noexcept;
 
-			//////////////////////////////////////////////////////////////////////////
-			// Module Code
-			//////////////////////////////////////////////////////////////////////////
-			public:
-			H265Interface(obs_data_t* data, obs_encoder_t* encoder);
-			~H265Interface();
+	//////////////////////////////////////////////////////////////////////////
+	// Module Code
+	//////////////////////////////////////////////////////////////////////////
+public:
+	H265Interface(obs_data_t *data, obs_encoder_t *encoder);
+	~H265Interface();
 
-			bool update(obs_data_t* data);
-			bool encode(struct encoder_frame* frame, struct encoder_packet* packet, bool* received_packet);
-			void get_video_info(struct video_scale_info* info);
-			bool get_extra_data(uint8_t** extra_data, size_t* size);
+	bool update(obs_data_t *data);
+	bool encode(struct encoder_frame *frame, struct encoder_packet *packet, bool *received_packet);
+	void get_video_info(struct video_scale_info *info);
+	bool get_extra_data(uint8_t **extra_data, size_t *size);
 
-			//////////////////////////////////////////////////////////////////////////
-			// Storage
-			//////////////////////////////////////////////////////////////////////////
-			private:
-			std::unique_ptr<Plugin::AMD::EncoderH265> m_VideoEncoder;
-			obs_encoder_t*                            m_Encoder;
-		};
-	} // namespace Interface
+	//////////////////////////////////////////////////////////////////////////
+	// Storage
+	//////////////////////////////////////////////////////////////////////////
+private:
+	std::unique_ptr<Plugin::AMD::EncoderH265> m_VideoEncoder;
+	obs_encoder_t *m_Encoder;
+};
+} // namespace Interface
 } // namespace Plugin

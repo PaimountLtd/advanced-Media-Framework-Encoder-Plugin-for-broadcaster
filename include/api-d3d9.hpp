@@ -28,39 +28,39 @@
 #pragma comment(lib, "d3d9.lib")
 
 namespace Plugin {
-	namespace API {
-		class Direct3D9 : public IAPI {
-			friend class Direct3D9Instance;
+namespace API {
+class Direct3D9 : public IAPI {
+	friend class Direct3D9Instance;
 
-			public:
-			Direct3D9();
-			~Direct3D9();
+public:
+	Direct3D9();
+	~Direct3D9();
 
-			virtual std::string               GetName() override;
-			virtual Type                      GetType() override;
-			virtual std::vector<Adapter>      EnumerateAdapters() override;
-			virtual std::shared_ptr<Instance> CreateInstance(Adapter adapter) override;
+	virtual std::string GetName() override;
+	virtual Type GetType() override;
+	virtual std::vector<Adapter> EnumerateAdapters() override;
+	virtual std::shared_ptr<Instance> CreateInstance(Adapter adapter) override;
 
-			protected:
-			IDirect3D9Ex* m_Direct3D9Ex;
-			//std::map<std::pair<int32_t, int32_t>, std::shared_ptr<Instance>> m_InstanceMap;
+protected:
+	IDirect3D9Ex *m_Direct3D9Ex;
+	//std::map<std::pair<int32_t, int32_t>, std::shared_ptr<Instance>> m_InstanceMap;
 
-			private:
-			std::vector<Adapter> m_Adapters;
-		};
+private:
+	std::vector<Adapter> m_Adapters;
+};
 
-		class Direct3D9Instance : public Instance {
-			public:
-			Direct3D9Instance(Direct3D9* api, Adapter adapter);
-			~Direct3D9Instance();
+class Direct3D9Instance : public Instance {
+public:
+	Direct3D9Instance(Direct3D9 *api, Adapter adapter);
+	~Direct3D9Instance();
 
-			virtual Adapter GetAdapter() override;
-			virtual void*   GetContext() override;
+	virtual Adapter GetAdapter() override;
+	virtual void *GetContext() override;
 
-			private:
-			Direct3D9*          m_API;
-			Adapter             m_Adapter;
-			IDirect3DDevice9Ex* m_Device;
-		};
-	} // namespace API
+private:
+	Direct3D9 *m_API;
+	Adapter m_Adapter;
+	IDirect3DDevice9Ex *m_Device;
+};
+} // namespace API
 } // namespace Plugin

@@ -28,28 +28,28 @@ extern "C" {
 }
 
 namespace Plugin {
-	namespace API {
-		class OpenGL : public IAPI {
-			public:
-			OpenGL();
-			~OpenGL();
+namespace API {
+class OpenGL : public IAPI {
+public:
+	OpenGL();
+	~OpenGL();
 
-			virtual std::string               GetName() override;
-			virtual Type                      GetType() override;
-			virtual std::vector<Adapter>      EnumerateAdapters() override;
-			virtual std::shared_ptr<Instance> CreateInstance(Adapter adapter) override;
-		};
+	virtual std::string GetName() override;
+	virtual Type GetType() override;
+	virtual std::vector<Adapter> EnumerateAdapters() override;
+	virtual std::shared_ptr<Instance> CreateInstance(Adapter adapter) override;
+};
 
-		class OpenGLInstance : public Instance {
-			public:
-			OpenGLInstance();
-			~OpenGLInstance();
+class OpenGLInstance : public Instance {
+public:
+	OpenGLInstance();
+	~OpenGLInstance();
 
-			virtual Adapter GetAdapter() override;
-			virtual void*   GetContext() override;
+	virtual Adapter GetAdapter() override;
+	virtual void *GetContext() override;
 
-			private:
-			Adapter adapter;
-		};
-	} // namespace API
+private:
+	Adapter adapter;
+};
+} // namespace API
 } // namespace Plugin

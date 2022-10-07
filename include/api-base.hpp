@@ -25,75 +25,73 @@
 #include "plugin.hpp"
 
 namespace Plugin {
-	namespace API {
-		enum class Type : uint8_t {
-			Host,
-			Direct3D9,
-			Direct3D11,
-			OpenGL,
-		};
+namespace API {
+enum class Type : uint8_t {
+	Host,
+	Direct3D9,
+	Direct3D11,
+	OpenGL,
+};
 
-		// An Adapter on an API
-		struct Adapter {
-			int32_t     idLow, idHigh;
-			std::string Name;
+// An Adapter on an API
+struct Adapter {
+	int32_t idLow, idHigh;
+	std::string Name;
 
-			Adapter() : idLow(0), idHigh(0), Name("Invalid Device") {}
-			Adapter(const int32_t p_idLow, const int32_t p_idHigh, const std::string& p_Name)
-				: idLow(p_idLow), idHigh(p_idHigh), Name(p_Name)
-			{}
-			Adapter(Adapter const& o) : Name(o.Name), idLow(o.idLow), idHigh(o.idHigh) {}
-			void operator=(Adapter const& o)
-			{
-				idLow  = o.idLow;
-				idHigh = o.idHigh;
-				Name   = o.Name;
-			}
+	Adapter() : idLow(0), idHigh(0), Name("Invalid Device") {}
+	Adapter(const int32_t p_idLow, const int32_t p_idHigh, const std::string &p_Name) : idLow(p_idLow), idHigh(p_idHigh), Name(p_Name) {}
+	Adapter(Adapter const &o) : Name(o.Name), idLow(o.idLow), idHigh(o.idHigh) {}
+	void operator=(Adapter const &o)
+	{
+		idLow = o.idLow;
+		idHigh = o.idHigh;
+		Name = o.Name;
+	}
 
-			friend bool operator<(const Plugin::API::Adapter& left, const Plugin::API::Adapter& right);
-			friend bool operator>(const Plugin::API::Adapter& left, const Plugin::API::Adapter& right);
-			friend bool operator<=(const Plugin::API::Adapter& left, const Plugin::API::Adapter& right);
-			friend bool operator>=(const Plugin::API::Adapter& left, const Plugin::API::Adapter& right);
+	friend bool operator<(const Plugin::API::Adapter &left, const Plugin::API::Adapter &right);
+	friend bool operator>(const Plugin::API::Adapter &left, const Plugin::API::Adapter &right);
+	friend bool operator<=(const Plugin::API::Adapter &left, const Plugin::API::Adapter &right);
+	friend bool operator>=(const Plugin::API::Adapter &left, const Plugin::API::Adapter &right);
 
-			friend bool operator==(const Plugin::API::Adapter& left, const Plugin::API::Adapter& right);
-			friend bool operator!=(const Plugin::API::Adapter& left, const Plugin::API::Adapter& right);
-		};
+	friend bool operator==(const Plugin::API::Adapter &left, const Plugin::API::Adapter &right);
+	friend bool operator!=(const Plugin::API::Adapter &left, const Plugin::API::Adapter &right);
+};
 
-		// Instance of an API Adapter
-		struct Instance {
-			public:
-			Instance();
-			virtual ~Instance();
+// Instance of an API Adapter
+struct Instance {
+public:
+	Instance();
+	virtual ~Instance();
 
-			virtual Adapter GetAdapter() = 0;
-			virtual void*   GetContext() = 0;
-		};
+	virtual Adapter GetAdapter() = 0;
+	virtual void *GetContext() = 0;
+};
 
-		// API Interface
-		class IAPI {
-			public:
-			IAPI();
-			virtual ~IAPI();
+// API Interface
+class IAPI {
+public:
+	IAPI();
+	virtual ~IAPI();
 
-			virtual std::string GetName() = 0;
-			virtual Type        GetType() = 0;
+	virtual std::string GetName() = 0;
+	virtual Type GetType() = 0;
 
-			virtual std::vector<Adapter> EnumerateAdapters() = 0;
-			Adapter                      GetAdapterById(const int32_t idLow, const int32_t idHigh);
-			Adapter                      GetAdapterByName(const std::string& name);
+	virtual std::vector<Adapter> EnumerateAdapters() = 0;
+	Adapter GetAdapterById(const int32_t idLow, const int32_t idHigh);
+	Adapter GetAdapterByName(const std::string &name);
 
-			virtual std::shared_ptr<Instance> CreateInstance(Adapter adapter) = 0;
-		};
+	virtual std::shared_ptr<Instance> CreateInstance(Adapter adapter) = 0;
+};
 
-		// Static API Stuff
-		void                               InitializeAPIs();
-		void                               FinalizeAPIs();
-		size_t                             CountAPIs();
-		std::string                        GetAPIName(size_t index);
-		std::shared_ptr<IAPI>              GetAPI(size_t index);
-		std::shared_ptr<IAPI>              GetAPI(const std::string& name);
-		std::shared_ptr<IAPI>              GetAPI(Type type);
-		std::vector<std::shared_ptr<IAPI>> EnumerateAPIs();
-		std::vector<std::string>           EnumerateAPINames();
-	} // namespace API
+// Static API Stuff
+void InitializeAPIs();
+void FinalizeAPIs();
+size_t CountAPIs();
+std::string GetAPIName(size_t index);
+std::shared_ptr<IAPI> GetAPI(size_t index);
+std::shared_ptr<IAPI> GetAPI(const std::string &name);
+std::shared_ptr<IAPI> GetAPI(Type type);
+std::vector<std::shared_ptr<IAPI>> EnumerateAPIs();
+std::vector<std::string> EnumerateAPINames();
+} // namespace API
 } // namespace Plugin

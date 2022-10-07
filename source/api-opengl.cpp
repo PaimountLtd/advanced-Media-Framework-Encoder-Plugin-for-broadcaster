@@ -63,7 +63,7 @@ Plugin::API::Adapter Plugin::API::OpenGLInstance::GetAdapter()
 	return Adapter(0, 0, "Default");
 }
 
-void* Plugin::API::OpenGLInstance::GetContext()
+void *Plugin::API::OpenGLInstance::GetContext()
 {
 	return nullptr;
 }
