@@ -422,6 +422,8 @@ AMF_VIDEO_ENCODER_PROFILE_ENUM Utility::ProfileToAMFH264(Plugin::AMD::Profile v)
 Plugin::AMD::Profile Utility::ProfileFromAMFH264(AMF_VIDEO_ENCODER_PROFILE_ENUM v)
 {
 #pragma warning(disable : 4063) // Developer Note: I know better, Compiler.
+#pragma warning(push)
+#pragma warning(disable : 4062)
 	switch (v) {
 	case AMF_VIDEO_ENCODER_PROFILE_CONSTRAINED_BASELINE:
 		return Profile::ConstrainedBaseline;
@@ -629,6 +631,7 @@ Plugin::AMD::RateControlMethod Utility::RateControlMethodFromAMFH265(AMF_VIDEO_E
 	case AMF_VIDEO_ENCODER_HEVC_RATE_CONTROL_METHOD_LATENCY_CONSTRAINED_VBR:
 		return RateControlMethod::LatencyConstrainedVariableBitrate;
 	}
+#pragma warning(pop)
 	throw std::runtime_error("Invalid Parameter");
 }
 
@@ -798,7 +801,7 @@ Plugin::AMD::ProfileLevel Utility::H265ProfileLevel(std::pair<uint32_t, uint32_t
 											  level(ProfileLevel::L52, levelRestriction(8912896, 1069547520)),
 											  level(ProfileLevel::L60, levelRestriction(35651584, 1069547520)),
 											  level(ProfileLevel::L61, levelRestriction(35651584, 2139095040)),
-											  level(ProfileLevel::L62, levelRestriction(35651584, 4278190080)),
+											  level(ProfileLevel::L62, levelRestriction(35651584, 4278190080u)),
 											  level((ProfileLevel)-1, levelRestriction(0, 0))};
 
 	uint32_t samples     = resolution.first * resolution.second;
